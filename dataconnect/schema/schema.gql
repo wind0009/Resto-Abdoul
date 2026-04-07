@@ -1,41 +1,56 @@
 type User @table {
   displayName: String!
-  userType: String!
   createdAt: Timestamp!
   email: String
   photoUrl: String
-  studentId: String
-  employeeId: String
+  bio: String
 }
 
-type Course @table {
+type Restaurant @table {
   name: String!
-  courseCode: String!
+  address: String!
+  cuisine: String!
   createdAt: Timestamp!
   description: String
-  teacher: User
+  phone: String
+  website: String
+  hoursOfOperation: String
+  averageRating: Float
 }
 
-type Assignment @table {
-  title: String!
-  dueDate: Timestamp!
+type MenuItem @table {
+  restaurant: Restaurant!
+  name: String!
+  price: Float!
   createdAt: Timestamp!
   description: String
-  pointsPossible: Int
-  course: Course
+  category: String
 }
 
-type Enrollment @table(key: ["user", "course"]) {
+type Review @table {
   user: User!
-  course: Course!
-  academicYear: String!
+  restaurant: Restaurant!
+  rating: Int!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  comment: String
+  foodRating: Int
+  serviceRating: Int
+  ambianceRating: Int
 }
 
-type Announcement @table {
-  title: String!
-  content: String!
+type RestaurantList @table {
+  user: User!
+  name: String!
   createdAt: Timestamp!
-  targetAudience: String!
-  poster: User
-  course: Course
+  updatedAt: Timestamp!
+  description: String
+  isPublic: Boolean
+}
+
+type RestaurantListItem @table(key: ["restaurantList", "restaurant"]) {
+  restaurantList: RestaurantList!
+  restaurant: Restaurant!
+  position: Int!
+  note: String
 }

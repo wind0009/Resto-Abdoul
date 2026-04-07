@@ -1,8 +1,8 @@
-# 📋 Description Détaillée du Projet Café de Amed
+# 📋 Description Détaillée du Projet Resto Abdoul
 
 ## 🏢 **Vue d'ensemble du projet**
 
-**Café de Amed** est une application web moderne de commande en ligne pour restaurant, développée avec React, TypeScript et Vite. Le site permet aux clients de passer des commandes via WhatsApp avec intégration Orange Money et un système complet de suivi des commissions.
+**Resto Abdoul** est une application web moderne de commande en ligne pour restaurant, développée avec React, TypeScript et Vite. Le site permet aux clients de passer des commandes via WhatsApp avec intégration Orange Money et un système complet de suivi des commissions.
 
 ---
 
@@ -53,7 +53,7 @@ const grandTotal = finalTotal + deliveryFee;
 
 ### 💾 **Stockage Local**
 ```javascript
-// localStorage key: 'amed_commissions'
+// localStorage key: 'abdoul_commissions'
 const commission = {
   id: Date.now(),
   date: new Date().toISOString(),

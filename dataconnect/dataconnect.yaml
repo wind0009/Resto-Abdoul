@@ -1,13 +1,13 @@
 specVersion: "v1"
-serviceId: "cafe-de-amed"
+serviceId: "restoabdoul"
 location: "us-east4"
-schema:
-  source: "./schema"
-  datasource:
-    postgresql:
-      database: "fdcdb"
-      cloudSql:
-        instanceId: "cafe-de-amed-fdc"
-        # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
-        # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
-connectorDirs: []
+schemas:
+  - source: "./schema"
+    datasource:
+      postgresql:
+        database: "fdcdb"
+        cloudSql:
+          instanceId: "restoabdoul-fdc"
+          # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
+          # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
+connectorDirs: ["./example"]

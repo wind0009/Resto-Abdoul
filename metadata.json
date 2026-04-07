@@ -1,6 +1,6 @@
 {
-  "name": "cafe de amed",
-  "description": "Site officiel du Cafe Resto Amed à Ouagadougou. Spécialités grillades, burgers et pizzas, ouvert 24h/24.",
+  "name": "resto abdoul",
+  "description": "Site officiel du Resto Abdoul à Ouahigouya. Spécialités grillades, burgers et pizzas, ouvert 24h/24.",
   "requestFramePermissions": [
     "geolocation"
   ]

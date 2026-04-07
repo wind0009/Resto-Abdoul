@@ -1,7 +1,7 @@
 
 {
-  "short_name": "Amed Resto",
-  "name": "Cafe Resto Amed Ouaga",
+  "short_name": "Resto Abdoul",
+  "name": "Resto Abdoul Ouahigouya",
   "icons": [
     {
       "src": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=192&h=192",
@@ -21,5 +21,5 @@
   "display": "standalone",
   "scope": "/",
   "theme_color": "#d97706",
-  "description": "Le meilleur des grillades et fast-food à Ouagadougou 24h/24."
+  "description": "Le meilleur des grillades et fast-food à Ouahigouya 24h/24."
 }

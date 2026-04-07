@@ -39,14 +39,14 @@ import { OrderOptionsModal } from './OrderOptionsModal';
 import { OrderService } from './OrderService';
 import { Check, Clipboard, Download, Loader2 as LoaderIcon } from 'lucide-react';
 
-const WHATSAPP_NUMBER = "22667609493";
-const ADMIN_PHONE = "67609493";
+const WHATSAPP_NUMBER = "00000000";
+const ADMIN_PHONE = "00000000";
 
 const MENU_DATA: MenuItem[] = [
   {
     id: '1',
     category: 'Grillades',
-    name: 'Poulet Braisé Amed',
+    name: 'Poulet Braisé Abdoul',
     price: 4500,
     priceString: '4,500 FCFA',
     description: 'Poulet fermier mariné aux 12 épices, braisé lentement au bois de néré. Servi avec alloco.',
@@ -64,7 +64,7 @@ const MENU_DATA: MenuItem[] = [
   {
     id: '3',
     category: 'Burgers',
-    name: 'Le Big Nonsin',
+    name: 'Le Big Ouahigouya',
     price: 3000,
     priceString: '3,000 FCFA',
     description: 'Double steak de bœuf, cheddar fondant, oignons caramélisés et notre sauce secrète.',
@@ -73,7 +73,7 @@ const MENU_DATA: MenuItem[] = [
   {
     id: '4',
     category: 'Pizzas',
-    name: 'Pizza Amed Spéciale',
+    name: 'Pizza Abdoul Spéciale',
     price: 5000,
     priceString: '5,000 FCFA',
     description: 'Mélange de viandes braisées, poivrons frais, mozzarella et origan sauvage.',
@@ -82,8 +82,8 @@ const MENU_DATA: MenuItem[] = [
 ];
 
 const REVIEWS = [
-  { name: "Moussa Traoré", comment: "Le meilleur poulet braisé de tout Ouaga. Service impeccable même à 3h du matin !", rating: 5 },
-  { name: "Alice Durand", comment: "Une pépite à Nonsin. Le cadre est magnifique et la carte est très variée.", rating: 5 },
+  { name: "Moussa Traoré", comment: "Le meilleur poulet braisé de tout Ouahigouya. Service impeccable même à 3h du matin !", rating: 5 },
+  { name: "Alice Durand", comment: "Une pépite au centre-ville. Le cadre est magnifique et la carte est très variée.", rating: 5 },
 ];
 
 const LocationFinder = () => {
@@ -105,7 +105,7 @@ const LocationFinder = () => {
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: "Où se trouve précisément le Cafe Resto Amed à Ouagadougou ? Indique qu'il est à Nonsin et comment y accéder.",
+        contents: "Où se trouve précisément le Resto Abdoul à Ouahigouya ? Indique qu'il est au centre-ville et comment y accéder.",
         config: {
           tools: [{ googleMaps: {} }],
           toolConfig: {
@@ -115,11 +115,11 @@ const LocationFinder = () => {
       });
 
       const links = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-      setLocationData({ text: response.text || "Le restaurant est situé au quartier Nonsin, Ouagadougou.", links });
+      setLocationData({ text: response.text || "Le restaurant est situé au centre-ville, Ouahigouya.", links });
     } catch (error) {
       setLocationData({
-        text: "Le Cafe Resto Amed vous accueille au quartier Nonsin, à proximité de la Rue 19.30 à Ouagadougou.",
-        links: [{ maps: { uri: "https://www.google.com/maps/search/Cafe+Resto+Amed+Ouagadougou", title: "Ouvrir Google Maps" } }]
+        text: "Le Resto Abdoul vous accueille au centre-ville, à Ouahigouya.",
+        links: [{ maps: { uri: "https://www.google.com/maps/search/Resto+Abdoul+Ouahigouya", title: "Ouvrir Google Maps" } }]
       });
     } finally {
       setLoading(false);
@@ -134,7 +134,7 @@ const LocationFinder = () => {
         </div>
         <div>
           <h3 className="text-3xl font-black tracking-tighter dark:text-white">Nous Trouver</h3>
-          <p className="text-stone-500 dark:text-stone-400 text-sm">Quartier Nonsin, Ouaga</p>
+          <p className="text-stone-500 dark:text-stone-400 text-sm">Centre-ville, Ouahigouya</p>
         </div>
       </div>
 
@@ -341,12 +341,12 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [menu, setMenu] = useState<MenuItem[]>(() => {
-    const saved = localStorage.getItem('amed_menu');
+    const saved = localStorage.getItem('abdoul_menu');
     return saved ? JSON.parse(saved) : MENU_DATA;
   });
 
   useEffect(() => {
-    localStorage.setItem('amed_menu', JSON.stringify(menu));
+    localStorage.setItem('abdoul_menu', JSON.stringify(menu));
   }, [menu]);
 
   // Utiliser le hook de commande
@@ -491,14 +491,13 @@ export default function App() {
           <div className="flex justify-between items-center h-24">
             <div className="flex items-center gap-4">
               <div className={`relative ${scrolled ? 'scale-90' : 'scale-100'} transition-transform duration-500`}>
-                <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-3 rounded-2xl shadow-xl">
-                  <Utensils className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl bg-white flex items-center justify-center">
+                  <img src="/logo.png" alt="Resto Abdoul Logo" className="w-full h-full object-contain" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
               </div>
               <div>
                 <h1 className={`text-3xl font-black tracking-tighter transition-colors ${scrolled ? 'text-white' : 'text-white'}`}>
-                  AMED<span className="text-amber-500">.</span>
+                  ABDOUL<span className="text-amber-500">.</span>
                 </h1>
                 <p className={`text-sm font-medium transition-colors ${scrolled ? 'text-amber-400' : 'text-amber-300'}`}>
                   Café Restaurant
@@ -557,13 +556,13 @@ export default function App() {
 
         <div className="relative z-10 max-w-7xl mx-auto w-full text-white">
           <div className="max-w-4xl space-y-12">
-            <span className="inline-block bg-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.4em]">Café Resto Amed</span>
+            <span className="inline-block bg-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.4em]">Resto Abdoul</span>
             <h1 className="text-6xl md:text-[9rem] font-black leading-[0.85] tracking-tight">
               L'Authentique <br />
               <span className="text-amber-500 font-title italic font-medium">Saveur.</span>
             </h1>
             <p className="text-xl md:text-2xl text-stone-300 font-light leading-relaxed max-w-2xl">
-              Découvrez le goût unique de nos grillades au feu de bois dans un cadre moderne et accueillant au cœur de Ouagadougou.
+              Découvrez le goût unique de nos grillades au feu de bois dans un cadre moderne et accueillant au cœur de Ouahigouya.
             </p>
             <div className="flex flex-col sm:flex-row gap-8 pt-4">
               <a href="#menu" className="btn-primary flex items-center justify-center gap-4">Découvrir le Menu <ArrowRight className="w-5 h-5" /></a>
@@ -586,7 +585,7 @@ export default function App() {
               </h2>
             </div>
             <p className="text-stone-500 dark:text-stone-400 text-lg leading-relaxed">
-              Plus qu'un restaurant, le Cafe Resto Amed est une institution à Nonsin. Nous cuisinons avec amour pour vous offrir une expérience mémorable à chaque bouchée.
+              Plus qu'un restaurant, le Resto Abdoul est une institution à Ouahigouya. Nous cuisinons avec amour pour vous offrir une expérience mémorable à chaque bouchée.
             </p>
             <div className="grid grid-cols-2 gap-8">
               <div className="p-8 bg-white dark:bg-stone-900 rounded-3xl border border-stone-100 dark:border-white/5">
@@ -1077,7 +1076,7 @@ export default function App() {
                           ctx.fillStyle = '#1c1917';
                           ctx.font = 'bold 32px Arial';
                           ctx.textAlign = 'center';
-                          ctx.fillText('🍽️ CAFÉ DE AMED', canvas.width / 2, 60);
+                          ctx.fillText('🍽️ RESTO ABDOUL', canvas.width / 2, 60);
                           
                           ctx.font = 'bold 24px Arial';
                           ctx.fillText('TICKET DE COMMANDE', canvas.width / 2, 100);
@@ -1249,7 +1248,7 @@ export default function App() {
                                 const url = URL.createObjectURL(blob);
                                 const a = document.createElement('a');
                                 a.href = url;
-                                a.download = `ticket-amed-${ticketCode}.png`;
+                                a.download = `ticket-abdoul-${ticketCode}.png`;
                                 document.body.appendChild(a);
                                 a.click();
                                 document.body.removeChild(a);
@@ -1380,7 +1379,7 @@ export default function App() {
           window.commissionSystem = {
             addCommission: function(amount, orderType, clientName, clientPhone) {
               try {
-                let commissions = JSON.parse(localStorage.getItem('amed_commissions') || '[]');
+                let commissions = JSON.parse(localStorage.getItem('abdoul_commissions') || '[]');
                 const commission = {
                   id: Date.now(),
                   date: new Date().toISOString(),
@@ -1391,14 +1390,14 @@ export default function App() {
                   status: 'en_attente'
                 };
                 commissions.push(commission);
-                localStorage.setItem('amed_commissions', JSON.stringify(commissions));
+                localStorage.setItem('abdoul_commissions', JSON.stringify(commissions));
               } catch (err) {
                 console.error('Erreur commission:', err);
               }
             },
             getTotalCommissions: function() {
               try {
-                const commissions = JSON.parse(localStorage.getItem('amed_commissions') || '[]');
+                const commissions = JSON.parse(localStorage.getItem('abdoul_commissions') || '[]');
                 return commissions.reduce((total, comm) => total + (comm.amount || 0), 0);
               } catch (e) {
                 return 0;
@@ -1408,11 +1407,51 @@ export default function App() {
         `
       }} />
 
+      {/* Reservation Section */}
+      <section id="reservation" className="py-24 bg-stone-50 dark:bg-stone-950 transition-colors">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="space-y-4 mb-16">
+            <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Votre Table</span>
+            <h2 className="text-5xl md:text-7xl font-black tracking-tighter dark:text-white">Réserver</h2>
+            <p className="text-stone-500 max-w-2xl mx-auto">Contactez-nous directement sur WhatsApp pour réserver votre table dans notre espace VIP ou en terrasse.</p>
+          </div>
+          <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-4 bg-amber-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-xl">
+            <Send className="w-5 h-5" /> Réserver sur WhatsApp
+          </a>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="py-24 bg-white dark:bg-stone-900 transition-colors">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="space-y-4 mb-16">
+            <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Restons en contact</span>
+            <h2 className="text-5xl md:text-7xl font-black tracking-tighter dark:text-white">Contact</h2>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-8">
+            <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5">
+              <Phone className="w-8 h-8 text-amber-600" />
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Téléphone</p>
+                <p className="font-bold dark:text-white">+226 {ADMIN_PHONE}</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5">
+              <MapPin className="w-8 h-8 text-amber-600" />
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Adresse</p>
+                <p className="font-bold dark:text-white">Ouahigouya</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer avec références */}
       <footer className="bg-stone-900 text-white py-8 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
-            <p className="text-xs font-bold uppercase tracking-widest text-amber-500">Café de Amed</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-500">Resto Abdoul</p>
             <p className="text-[10px] text-stone-400 mt-1">Version 2.0 • 2026</p>
           </div>
           <div className="text-center">

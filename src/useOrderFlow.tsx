@@ -44,6 +44,7 @@ export const useOrderFlow = (cart: CartItem[], setCart: React.Dispatch<React.Set
         mode,
         eta,
         total,
+        restaurantPrice,
         commission,
         grandTotal
       };

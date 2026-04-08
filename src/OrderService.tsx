@@ -36,14 +36,14 @@ export class OrderService {
 
   static generatePaymentInstructions(grandTotal: number, eta: string, isOnSite: boolean = false): string {
     if (isOnSite) {
-      return "💳 PAIEMENT SUR PLACE\n\n📞 Compte restaurant: 67609493\n💰 Montant: " + grandTotal.toLocaleString() + " FCFA\n\n✅ Montant déjà pré-rempli: *" + grandTotal + " FCFA*\n⏰ Votre commande sera prête en " + eta;
+      return "💳 PAIEMENT SUR PLACE\n\n📞 Compte restaurant: 74503232\n💰 Montant: " + grandTotal.toLocaleString() + " FCFA\n\n✅ Montant déjà pré-rempli: *" + grandTotal + " FCFA*\n⏰ Votre commande sera prête en " + eta;
     } else {
-      return "💳 PAIEMENT ORANGE MONEY\n\n📞 Compte restaurant: 67609493\n💰 Montant: " + grandTotal.toLocaleString() + " FCFA\n\n🔟 ÉTAPES SIMPLES:\n1️⃣ Composer *144*10*67609493*" + grandTotal + "#\n2️⃣ Confirmer le montant\n3️⃣ Entrer votre code secret\n\n✅ Paiement validé = Commande confirmée !\n⏰ Votre commande sera prête en " + eta;
+      return "💳 PAIEMENT ORANGE MONEY\n\n📞 Compte restaurant: 74503232\n💰 Montant: " + grandTotal.toLocaleString() + " FCFA\n\n🔟 ÉTAPES SIMPLES:\n1️⃣ Composer *144*10*74503232*" + grandTotal + "#\n2️⃣ Confirmer le montant\n3️⃣ Entrer votre code secret\n\n✅ Paiement validé = Commande confirmée !\n⏰ Votre commande sera prête en " + eta;
     }
   }
 
   static getRestaurantUSSD(amount: number): string {
-    return `*144*10*67609493*${amount}#`;
+    return `*144*10*74503232*${amount}#`;
   }
 
   static getCommissionUSSD(): string {
@@ -79,22 +79,10 @@ export class OrderService {
         restaurantMessage += "\n\n📸 PREUVE PAIEMENT COMMISSION:\n✅ Transaction confirmée";
       }
 
-      const ownerMessage = "💰 NOUVELLE COMMISSION 💰\n\n📦 " + orderType + "\n👤 " + order.name + "\n📞 " + order.phone + "\n💵 " + order.commission.toLocaleString() + " FCFA\n💰 Total commande: " + grandTotal.toLocaleString() + " FCFA";
-
-      // WhatsApp Restaurant - ouvrir immédiatement dans le même onglet pour éviter le blocage popup
-      const restaurantUrl = `https://wa.me/22667609493?text=${encodeURIComponent(restaurantMessage)}`;
+      // WhatsApp Restaurant (gerant) - ouvrir immédiatement dans le même onglet pour éviter le blocage popup
+      const restaurantUrl = `https://wa.me/22674503232?text=${encodeURIComponent(restaurantMessage)}`;
       window.location.href = restaurantUrl;
-
-      // WhatsApp Propriétaire après un court délai
-      setTimeout(() => {
-        const ownerUrl = `https://wa.me/22666798031?text=${encodeURIComponent(ownerMessage)}`;
-        const newWindow = window.open(ownerUrl, '_blank');
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-          // Si le popup est bloqué, essayer avec location.href
-          window.location.href = ownerUrl;
-        }
-        resolve();
-      }, 1500);
+      resolve();
     });
   }
 }

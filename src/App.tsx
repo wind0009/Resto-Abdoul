@@ -39,45 +39,99 @@ import { OrderOptionsModal } from './OrderOptionsModal';
 import { OrderService } from './OrderService';
 import { Check, Clipboard, Download, Loader2 as LoaderIcon } from 'lucide-react';
 
-const WHATSAPP_NUMBER = "00000000";
-const ADMIN_PHONE = "00000000";
+const WHATSAPP_NUMBER = "74503232";
+const RESTAURANT_MAPS_URL = "https://maps.app.goo.gl/iQGzFA3ZEERyUYLw7";
 
 const MENU_DATA: MenuItem[] = [
   {
-    id: '1',
-    category: 'Grillades',
-    name: 'Poulet Braisé Abdoul',
-    price: 4500,
-    priceString: '4,500 FCFA',
-    description: 'Poulet fermier mariné aux 12 épices, braisé lentement au bois de néré. Servi avec alloco.',
-    image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=800'
+    id: 'ff1',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Petit',
+    price: 1000,
+    priceString: '1,000 FCFA',
+    description: 'Morceau de poulet pané croustillant, idéal pour une petite faim.',
+    image: '/poulet pané.png'
   },
   {
-    id: '2',
-    category: 'Grillades',
-    name: 'Le Capitaine Royal',
-    price: 3500,
-    priceString: '3,500 FCFA',
-    description: 'Pavé de capitaine sauvage grillé unilatéralement, sauce vierge au citron de Bobo.',
-    image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=800'
+    id: 'ff2',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Moyen',
+    price: 1500,
+    priceString: '1,500 FCFA',
+    description: 'Poulet pané de taille moyenne avec frites et sauce.',
+    image: '/poulet pané.png'
   },
   {
-    id: '3',
-    category: 'Burgers',
-    name: 'Le Big Ouahigouya',
-    price: 3000,
-    priceString: '3,000 FCFA',
-    description: 'Double steak de bœuf, cheddar fondant, oignons caramélisés et notre sauce secrète.',
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800'
+    id: 'ff3',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Grand',
+    price: 2000,
+    priceString: '2,000 FCFA',
+    description: 'Generux poulet pané avec double portion de frites et sauces.',
+    image: '/poulet pané.png'
   },
   {
-    id: '4',
-    category: 'Pizzas',
-    name: 'Pizza Abdoul Spéciale',
+    id: 'ff4',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Entier',
     price: 5000,
     priceString: '5,000 FCFA',
-    description: 'Mélange de viandes braisées, poivrons frais, mozzarella et origan sauvage.',
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=800'
+    description: 'Poulet entier pané, parfait pour partager, accompagné de frites.',
+    image: '/poulet pané.png'
+  },
+  {
+    id: 'ff5',
+    category: 'Fast Food',
+    name: 'Chawarma - Simple',
+    price: 1500,
+    priceString: '1,500 FCFA',
+    description: 'Chawarma simple dans pain pita avec crudités et sauce.',
+    image: '/charwarma.png'
+  },
+  {
+    id: 'ff6',
+    category: 'Fast Food',
+    name: 'Chawarma - Complet',
+    price: 2000,
+    priceString: '2,000 FCFA',
+    description: 'Chawarma complet avec double viande, frites et sauces variées.',
+    image: '/charwarma.png'
+  },
+  {
+    id: 'ff7',
+    category: 'Fast Food',
+    name: 'Pain Anglais',
+    price: 1000,
+    priceString: '1,000 FCFA',
+    description: 'Pain anglais grillé avec beurre et confiture maison.',
+    image: '/pain anglais.png'
+  },
+  {
+    id: 'ff8',
+    category: 'Fast Food',
+    name: 'Frites',
+    price: 1000,
+    priceString: '1,000 FCFA',
+    description: 'Frites maison croustillantes, sel et poivre.',
+    image: '/frites.png'
+  },
+  {
+    id: 'ff9',
+    category: 'Fast Food',
+    name: 'Saucisse',
+    price: 500,
+    priceString: '500 FCFA',
+    description: 'Saucisse grillée au feu de bois, servie seule ou avec frites.',
+    image: '/saucisse.png'
+  },
+  {
+    id: 'ff10',
+    category: 'Fast Food',
+    name: 'Merguez (2 pièces)',
+    price: 500,
+    priceString: '500 FCFA',
+    description: 'Deux merguez épicées grillées, servies avec harissa.',
+    image: '/mergez.png'
   },
 ];
 
@@ -114,12 +168,16 @@ const LocationFinder = () => {
         },
       });
 
-      const links = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const rawChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const links = [
+        { maps: { uri: RESTAURANT_MAPS_URL, title: "Ouvrir Google Maps" } },
+        ...rawChunks.filter((c: any) => c.maps?.uri && c.maps.uri !== RESTAURANT_MAPS_URL),
+      ];
       setLocationData({ text: response.text || "Le restaurant est situé au centre-ville, Ouahigouya.", links });
     } catch (error) {
       setLocationData({
         text: "Le Resto Abdoul vous accueille au centre-ville, à Ouahigouya.",
-        links: [{ maps: { uri: "https://www.google.com/maps/search/Resto+Abdoul+Ouahigouya", title: "Ouvrir Google Maps" } }]
+        links: [{ maps: { uri: RESTAURANT_MAPS_URL, title: "Ouvrir Google Maps" } }]
       });
     } finally {
       setLoading(false);
@@ -134,220 +192,132 @@ const LocationFinder = () => {
         </div>
         <div>
           <h3 className="text-3xl font-black tracking-tighter dark:text-white">Nous Trouver</h3>
-          <p className="text-stone-500 dark:text-stone-400 text-sm">Centre-ville, Ouahigouya</p>
+          <p className="text-stone-600 dark:text-stone-400 text-sm">Chez Abdoul Fast Food - À côté du D DR Sport et Loisir</p>
         </div>
       </div>
 
       <div className="min-h-[100px] flex flex-col justify-center">
-        {loading ? (
-          <div className="flex items-center gap-4 text-amber-600 animate-pulse">
-            <Loader2 className="w-6 h-6 animate-spin" />
-            <span className="font-bold tracking-widest text-xs uppercase">Localisation en cours...</span>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+          <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
+            Retrouvez-nous à Ouahigouya, centre-ville, juste à côté du D DR Sport et Loisir pour vos commandes rapides à emporter.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <a
+              href={RESTAURANT_MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-stone-100 dark:bg-white/10 hover:bg-amber-600 hover:text-white text-stone-900 dark:text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <ExternalLink className="w-4 h-4" /> Ouvrir Google Maps
+            </a>
           </div>
-        ) : locationData ? (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-stone-600 dark:text-stone-300 leading-relaxed italic">"{locationData.text}"</p>
-            <div className="flex flex-wrap gap-4">
-              {locationData.links.map((link: any, i: number) => link.maps && (
-                <a
-                  key={i}
-                  href={link.maps.uri}
-                  target="_blank"
-                  className="inline-flex items-center gap-2 bg-stone-100 dark:bg-white/10 hover:bg-amber-600 hover:text-white text-stone-900 dark:text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
-                >
-                  <ExternalLink className="w-4 h-4" /> {link.maps.title || "Itinéraire"}
-                </a>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p className="text-stone-400 text-sm">Appuyez pour obtenir l'itinéraire précis vers notre restaurant.</p>
-        )}
+        </div>
       </div>
 
-      <button
-        onClick={findRestaurant}
-        disabled={loading}
+      <a
+        href={RESTAURANT_MAPS_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="w-full bg-stone-900 dark:bg-amber-600 hover:bg-amber-600 dark:hover:bg-amber-500 text-white py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center gap-4 shadow-xl"
       >
         <Navigation className="w-5 h-5" /> Obtenir l'itinéraire
-      </button>
+      </a>
     </div>
   );
 };
 
-const AdminPanel = ({ isOpen, onClose, menu, setMenu }: { isOpen: boolean, onClose: () => void, menu: MenuItem[], setMenu: React.Dispatch<React.SetStateAction<MenuItem[]>> }) => {
-  const [pass, setPass] = useState('');
-  const [isAuthed, setIsAuthed] = useState(false);
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const [newItemImage, setNewItemImage] = useState<string | null>(null);
-
-  if (!isOpen) return null;
-
-  const handleLogin = () => {
-    if (pass === ADMIN_PHONE) setIsAuthed(true);
-    else alert('Code incorrect');
-  };
-
-  const updateItem = (item: MenuItem) => {
-    setMenu(prev => prev.map(i => i.id === item.id ? item : i));
-    setEditingItem(null);
-  };
-
-  const addNewItem = () => {
-    const newItem: MenuItem = {
-      id: Date.now().toString(),
-      name: 'Nouveau Produit',
-      price: 1000,
-      priceString: '1,000 FCFA',
-      description: 'Description du produit',
-      image: newItemImage || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=800',
-      category: 'Plats',
-      prepTime: 15
-    };
-    setMenu(prev => [...prev, newItem]);
-    setNewItemImage(null);
-  };
-
-  if (!isAuthed) {
-    return (
-      <div className="fixed inset-0 z-[130] flex items-center justify-center p-6">
-        <div className="absolute inset-0 bg-stone-900/90 backdrop-blur-md" onClick={onClose}></div>
-        <div className="relative bg-white dark:bg-stone-900 w-full max-w-md rounded-[3rem] p-10 space-y-8 animate-in zoom-in-95">
-          <div className="text-center space-y-4">
-            <Settings className="w-16 h-16 text-amber-600 mx-auto" />
-            <h3 className="text-3xl font-black tracking-tighter dark:text-white uppercase">Admin Login</h3>
-          </div>
-          <input
-            type="password"
-            placeholder="Code de vérification"
-            value={pass}
-            onChange={e => setPass(e.target.value)}
-            className="w-full bg-stone-50 dark:bg-stone-950 border-none p-6 rounded-2xl font-bold focus:ring-2 ring-amber-600 outline-none"
-          />
-          <button onClick={handleLogin} className="w-full bg-amber-600 text-white py-6 rounded-2xl font-black uppercase tracking-wide text-sm shadow-xl">Se Connecter</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 z-[130] flex items-center justify-end">
-      <div className="absolute inset-0 bg-stone-900/60 dark:bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative bg-white dark:bg-stone-900 w-full max-w-4xl h-full shadow-2xl p-10 flex flex-col animate-in slide-in-from-right duration-500 overflow-hidden">
-        <div className="flex justify-between items-center mb-12">
-          <h3 className="text-4xl font-black tracking-tighter flex items-center gap-4">
-            <Settings className="w-8 h-8 text-amber-600" /> Dashboard Admin
-          </h3>
-          <button onClick={onClose} className="p-4 hover:bg-stone-100 dark:hover:bg-white/5 rounded-full"><X className="w-8 h-8" /></button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto space-y-6 pr-4">
-          <div className="bg-stone-50 dark:bg-stone-950 p-6 rounded-3xl border border-stone-100 dark:border-white/5">
-            <h4 className="text-sm font-black uppercase tracking-wide text-stone-400 mb-4">Image du nouveau produit</h4>
-            <div className="space-y-4">
-              {newItemImage ? (
-                <div className="relative">
-                  <img src={newItemImage} className="w-full h-48 rounded-2xl object-cover" alt="Preview" />
-                  <button onClick={() => setNewItemImage(null)} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div onClick={() => document.getElementById('new-item-image')?.click()} className="w-full h-48 border-2 border-dashed border-stone-200 dark:border-white/10 rounded-2xl flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-amber-600 transition-all">
-                  <ImageIcon className="w-12 h-12 text-stone-300" />
-                  <span className="text-sm font-bold text-stone-400">Cliquez pour ajouter une image</span>
-                </div>
-              )}
-              <input
-                id="new-item-image"
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={e => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (re) => setNewItemImage(re.target?.result as string);
-                    reader.readAsDataURL(file);
-                  }
-                }}
-              />
-            </div>
-          </div>
-
-          <button onClick={addNewItem} className="w-full py-6 border-2 border-dashed border-amber-600/30 text-amber-600 rounded-3xl font-black uppercase tracking-wide text-sm flex items-center justify-center gap-4 hover:bg-amber-600/5 transition-all">
-            <PlusCircle className="w-5 h-5" /> Ajouter un produit
-          </button>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {menu.map(item => (
-              <div key={item.id} className="bg-stone-50 dark:bg-stone-950 p-6 rounded-3xl border border-stone-100 dark:border-white/5 flex gap-6 items-center">
-                <img src={item.image} className="w-24 h-24 rounded-2xl object-cover" alt={item.name} />
-                <div className="flex-1 space-y-2">
-                  <h4 className="font-bold">{item.name}</h4>
-                  <p className="text-amber-600 font-black text-sm">{item.priceString}</p>
-                  <button onClick={() => setEditingItem(item)} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-amber-600 transition-colors">
-                    <Edit2 className="w-3 h-3" /> Modifier
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {editingItem && (
-          <div className="absolute inset-0 bg-white dark:bg-stone-900 z-10 p-10 flex flex-col animate-in slide-in-from-bottom-12">
-            <div className="flex justify-between items-center mb-8">
-              <h4 className="text-2xl font-black uppercase tracking-tighter">Modifier {editingItem.name}</h4>
-              <button onClick={() => setEditingItem(null)} className="p-3 hover:bg-stone-100 dark:hover:bg-white/5 rounded-full"><X className="w-6 h-6" /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto space-y-6 pr-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-4">Image URL</label>
-                <div className="flex gap-4">
-                  <img src={editingItem.image} className="w-32 h-32 rounded-3xl object-cover shadow-xl" />
-                  <textarea value={editingItem.image} onChange={e => setEditingItem({ ...editingItem, image: e.target.value })} className="flex-1 bg-stone-50 dark:bg-stone-950 border-none p-6 rounded-[2rem] font-medium text-sm focus:ring-2 ring-amber-600 outline-none" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-4">Nom</label>
-                  <input type="text" value={editingItem.name} onChange={e => setEditingItem({ ...editingItem, name: e.target.value })} className="w-full bg-stone-50 dark:bg-stone-950 border-none p-6 rounded-2xl font-bold focus:ring-2 ring-amber-600 outline-none" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 px-4">Prix (Nombre)</label>
-                  <input type="number" value={editingItem.price} onChange={e => setEditingItem({ ...editingItem, price: parseInt(e.target.value), priceString: parseInt(e.target.value).toLocaleString() + ' FCFA' })} className="w-full bg-stone-50 dark:bg-stone-950 border-none p-6 rounded-2xl font-bold focus:ring-2 ring-amber-600 outline-none" />
-                </div>
-              </div>
-            </div>
-            <div className="pt-8 border-t border-stone-100 dark:border-white/10 flex gap-4">
-              <button onClick={() => setMenu(prev => prev.filter(i => i.id !== editingItem.id))} className="flex-1 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] text-red-500 hover:bg-red-500/5 transition-colors">Supprimer</button>
-              <button onClick={() => updateItem(editingItem)} className="flex-[2] bg-amber-600 text-white py-6 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl flex items-center justify-center gap-3">
-                <Save className="w-4 h-4" /> Sauvegarder
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [menu, setMenu] = useState<MenuItem[]>(() => {
     const saved = localStorage.getItem('abdoul_menu');
     return saved ? JSON.parse(saved) : MENU_DATA;
   });
+  const [isMenuRemoteReady, setIsMenuRemoteReady] = useState(false);
+  const [isMenuRemoteEnabled, setIsMenuRemoteEnabled] = useState(false);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+
+    const initRemoteMenuSync = async () => {
+      try {
+        const hasFirebaseConfig = Boolean(
+          import.meta.env.VITE_FIREBASE_API_KEY &&
+          import.meta.env.VITE_FIREBASE_PROJECT_ID &&
+          import.meta.env.VITE_FIREBASE_APP_ID
+        );
+
+        if (!hasFirebaseConfig) {
+          setIsMenuRemoteReady(true);
+          return;
+        }
+
+        const [{ app: firebaseApp }, { doc, getFirestore, onSnapshot }] = await Promise.all([
+          import('./firebase'),
+          import('firebase/firestore')
+        ]);
+
+        const db = getFirestore(firebaseApp);
+        const menuDocRef = doc(db, 'public', 'menu');
+
+        unsubscribe = onSnapshot(
+          menuDocRef,
+          (snapshot) => {
+            if (snapshot.exists()) {
+              const remoteItems = snapshot.data()?.items;
+              if (Array.isArray(remoteItems) && remoteItems.length > 0) {
+                setMenu((prev) => {
+                  const prevJson = JSON.stringify(prev);
+                  const remoteJson = JSON.stringify(remoteItems);
+                  return prevJson === remoteJson ? prev : (remoteItems as MenuItem[]);
+                });
+              }
+            }
+            setIsMenuRemoteEnabled(true);
+            setIsMenuRemoteReady(true);
+          },
+          () => {
+            setIsMenuRemoteReady(true);
+          }
+        );
+      } catch {
+        setIsMenuRemoteReady(true);
+      }
+    };
+
+    initRemoteMenuSync();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('abdoul_menu', JSON.stringify(menu));
   }, [menu]);
+
+  useEffect(() => {
+    if (!isMenuRemoteReady || !isMenuRemoteEnabled) return;
+
+    const pushMenuToRemote = async () => {
+      try {
+        const [{ app: firebaseApp }, { doc, getFirestore, setDoc }] = await Promise.all([
+          import('./firebase'),
+          import('firebase/firestore')
+        ]);
+        const db = getFirestore(firebaseApp);
+        const menuDocRef = doc(db, 'public', 'menu');
+        await setDoc(menuDocRef, { items: menu }, { merge: true });
+      } catch {
+        // Keep localStorage as fallback when Firestore sync fails.
+      }
+    };
+
+    pushMenuToRemote();
+  }, [menu, isMenuRemoteReady, isMenuRemoteEnabled]);
 
   // Utiliser le hook de commande
   const {
@@ -359,7 +329,8 @@ export default function App() {
     setShowOptionsModal,
     currentStep,
     setCurrentStep,
-    completedOrder
+    completedOrder,
+    setCompletedOrder
   } = useOrderFlow(cart, setCart);
 
   const [verificationProgress, setVerificationProgress] = useState(0);
@@ -367,6 +338,16 @@ export default function App() {
   const [commissionScreenshot, setCommissionScreenshot] = useState<string | null>(null);
   const [ussdState, setUssdState] = useState<'INIT' | 'USSD_READY' | 'USSD_OPENED' | 'USSD_DIALING' | 'USER_CONFIRMED' | 'PAYMENT_PASSED_GATE'>('INIT');
   const [paymentTimestamp, setPaymentTimestamp] = useState<number | null>(null);
+  const restaurantAmount = completedOrder?.restaurantPrice ?? completedOrder?.total ?? 0;
+
+  const cancelOrderValidation = () => {
+    setCurrentStep('idle');
+    setCompletedOrder(null);
+    setPaymentScreenshot(null);
+    setCommissionScreenshot(null);
+    setUssdState('INIT');
+    setPaymentTimestamp(null);
+  };
 
   // Enregistrer l'état du paiement dans localStorage pour traçabilité
   const logPaymentState = (state: string, step: string) => {
@@ -466,6 +447,21 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    const themeColor = isDark ? '#0c0a09' : '#d97706';
+    const statusBarStyle = isDark ? 'black-translucent' : 'default';
+
+    const themeColorMeta = document.querySelector("meta[name='theme-color']");
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', themeColor);
+    }
+
+    const appleStatusBarMeta = document.querySelector("meta[name='apple-mobile-web-app-status-bar-style']");
+    if (appleStatusBarMeta) {
+      appleStatusBarMeta.setAttribute('content', statusBarStyle);
+    }
+  }, [isDark]);
+
   const addToCart = (item: MenuItem) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
@@ -488,20 +484,12 @@ export default function App() {
       {/* Navigation */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-stone-900/95 backdrop-blur-lg shadow-2xl border-b border-amber-500/20' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between items-center h-24">
+          <div className="flex justify-between items-center h-20 md:h-24">
             <div className="flex items-center gap-4">
               <div className={`relative ${scrolled ? 'scale-90' : 'scale-100'} transition-transform duration-500`}>
-                <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl bg-white flex items-center justify-center">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden shadow-xl flex items-center justify-center">
                   <img src="/logo.png" alt="Resto Abdoul Logo" className="w-full h-full object-contain" />
                 </div>
-              </div>
-              <div>
-                <h1 className={`text-3xl font-black tracking-tighter transition-colors ${scrolled ? 'text-white' : 'text-white'}`}>
-                  ABDOUL<span className="text-amber-500">.</span>
-                </h1>
-                <p className={`text-sm font-medium transition-colors ${scrolled ? 'text-amber-400' : 'text-amber-300'}`}>
-                  Café Restaurant
-                </p>
               </div>
             </div>
 
@@ -516,13 +504,7 @@ export default function App() {
 
             <div className="flex items-center gap-6">
               <button
-                onClick={() => setIsAdminOpen(true)}
-                className={`p-3 rounded-xl transition-all border ${scrolled ? 'border-stone-200 dark:border-white/10 text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-white/5' : 'border-white/20 text-white hover:bg-white/10'}`}
-              >
-                <Settings className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setIsDark(!isDark)}
+                onClick={toggleTheme}
                 className={`p-3 rounded-full transition-all duration-300 ${scrolled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
               >
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -544,35 +526,30 @@ export default function App() {
       </header>
 
       {/* Hero Section */}
-      <section id="accueil" className="relative min-h-screen flex items-center pt-24 px-6 overflow-hidden">
+      <section id="accueil" className="relative min-h-screen flex items-center pt-24 md:pt-28 px-6 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=2000"
-            className="w-full h-full object-cover brightness-[0.4] lg:brightness-[0.6]"
-            alt="Hero"
+            src="/restaurant-photo.png"
+            className="w-full h-full object-cover brightness-[0.3] lg:brightness-[0.5]"
+            alt="Chez Abdoul Restaurant"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/40 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/60 to-transparent"></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto w-full text-white">
           <div className="max-w-4xl space-y-12">
-            <span className="inline-block bg-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.4em]">Resto Abdoul</span>
+            <span className="inline-block bg-amber-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.4em]">Chez Abdoul</span>
             <h1 className="text-6xl md:text-[9rem] font-black leading-[0.85] tracking-tight">
-              L'Authentique <br />
-              <span className="text-amber-500 font-title italic font-medium">Saveur.</span>
+              Fast Food <br />
+              <span className="text-amber-500 font-title italic font-medium">Express.</span>
             </h1>
             <p className="text-xl md:text-2xl text-stone-300 font-light leading-relaxed max-w-2xl">
-              Découvrez le goût unique de nos grillades au feu de bois dans un cadre moderne et accueillant au cœur de Ouahigouya.
+              Commande rapide, à emporter. Découvrez nos spécialités fast food préparées avec amour.
             </p>
-            <div className="flex flex-col sm:flex-row gap-8 pt-4">
-              <a href="#menu" className="btn-primary flex items-center justify-center gap-4">Découvrir le Menu <ArrowRight className="w-5 h-5" /></a>
-              <a href="#reservation" className="flex items-center justify-center gap-4 text-white font-black uppercase text-[10px] tracking-[0.4em] border border-white/20 px-8 py-4 rounded-2xl hover:bg-white/10 transition-all">
-                Réserver une table
-              </a>
-            </div>
           </div>
         </div>
       </section>
+
 
       {/* Features & Location */}
       <section className="py-32 bg-stone-50 dark:bg-stone-950 transition-colors">
@@ -606,27 +583,27 @@ export default function App() {
       <section id="menu" className="py-32 bg-white dark:bg-stone-900 transition-colors">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-24 space-y-4">
-            <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Gastronomie Urbaine</span>
-            <h2 className="text-6xl md:text-8xl font-black tracking-tighter dark:text-white">Notre Carte</h2>
+            <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Fast Food</span>
+            <h2 className="text-6xl md:text-8xl font-black tracking-tighter dark:text-white">Notre Menu</h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12">
-            {menu.map((item) => (
-              <div key={item.id} className="group relative bg-stone-50 dark:bg-stone-950 p-8 rounded-[3rem] flex flex-col md:flex-row gap-10 items-center border border-transparent hover:border-amber-600/30 transition-all">
-                <div className="w-full md:w-56 h-56 flex-shrink-0 overflow-hidden rounded-[2rem] shadow-xl">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {MENU_DATA.map((item) => (
+              <div key={item.id} className="group relative bg-stone-50 dark:bg-stone-950 p-6 rounded-[2rem] flex flex-col gap-6 border border-transparent hover:border-amber-600/30 transition-all">
+                <div className="w-full h-48 overflow-hidden rounded-[1.5rem] shadow-xl">
                   <img src={item.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={item.name} />
                 </div>
-                <div className="flex-1 space-y-4 text-center md:text-left">
-                  <div className="flex flex-col md:flex-row justify-between items-center md:items-end border-b border-stone-200 dark:border-white/10 pb-4 gap-4">
-                    <h4 className="text-2xl font-black tracking-tight dark:text-white">{item.name}</h4>
-                    <span className="text-amber-600 font-black text-xl">{item.priceString}</span>
+                <div className="flex-1 space-y-4">
+                  <div className="flex justify-between items-start gap-4">
+                    <h4 className="text-xl font-black tracking-tight dark:text-white">{item.name}</h4>
+                    <span className="text-amber-600 font-black text-lg">{item.priceString}</span>
                   </div>
-                  <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed">{item.description}</p>
-                  <button
+                  <p className="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">{item.description}</p>
+                  <button 
                     onClick={() => addToCart(item)}
-                    className="bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-amber-600 dark:hover:bg-amber-600 hover:text-white transition-all shadow-lg"
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-black uppercase tracking-[0.2em] text-xs transition-all"
                   >
-                    Ajouter au Panier
+                    Ajouter au panier
                   </button>
                 </div>
               </div>
@@ -637,22 +614,31 @@ export default function App() {
 
       {/* Payment Wizard Overlay */}
       {currentStep !== 'idle' && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)' }}
+        >
           <div className="absolute inset-0 bg-stone-900/90 backdrop-blur-md"></div>
 
-          <div className="relative bg-white dark:bg-stone-900 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="relative bg-white dark:bg-stone-900 w-full max-w-lg max-h-[90dvh] sm:max-h-[92vh] rounded-3xl sm:rounded-[2.5rem] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
             {currentStep === 'paying_restaurant' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto">
                   <Utensils className="w-10 h-10 text-amber-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Validation de votre commande</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Validation de votre commande</h3>
                   <p className="text-stone-500 dark:text-stone-400">Cliquez sur le code ci-dessous pour effectuer le transfert</p>
                 </div>
                 <div className="bg-stone-50 dark:bg-black/20 p-6 rounded-3xl">
                   <p className="text-sm text-stone-400 uppercase font-black tracking-widest mb-1">Montant à payer</p>
-                  <p className="text-4xl font-black text-amber-600">{(completedOrder as any)?.restaurantPrice?.toLocaleString()} FCFA</p>
+                  <p className="text-4xl font-black text-amber-600">{restaurantAmount.toLocaleString()} FCFA</p>
+                </div>
+
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-2xl p-4 text-left">
+                  <p className="text-amber-700 dark:text-amber-300 text-sm font-bold">
+                    ⚠️ Important: après le paiement, vous devez obligatoirement ajouter une image de la capture d'ecran de la transaction pour valider votre commande.
+                  </p>
                 </div>
 
                 {/* Code USSD cliquable sans option d'annulation */}
@@ -663,7 +649,7 @@ export default function App() {
                   <button
                     onClick={() => {
                       // Ouvrir directement le code USSD
-                      const ussd = OrderService.getRestaurantUSSD((completedOrder as any)?.restaurantPrice);
+                      const ussd = OrderService.getRestaurantUSSD(restaurantAmount);
                       window.location.href = `tel:${encodeURIComponent(ussd)}`;
                       setUssdState('USSD_DIALING');
                       setPaymentTimestamp(Date.now());
@@ -671,23 +657,30 @@ export default function App() {
                       // Passer directement à l'étape d'attente
                       setCurrentStep('ussd_dialing_restaurant');
                     }}
-                    className="w-full bg-amber-600 text-white py-8 rounded-3xl font-black text-2xl uppercase tracking-widest flex items-center justify-center gap-4 hover:bg-amber-700 transition-all shadow-xl animate-pulse"
+                    className="w-full bg-amber-600 text-white py-5 sm:py-8 rounded-3xl font-black text-base sm:text-2xl uppercase tracking-wide sm:tracking-widest flex items-center justify-center gap-3 sm:gap-4 hover:bg-amber-700 transition-all shadow-xl animate-pulse break-all"
                   >
                     <Smartphone className="w-8 h-8" /> 
-                    {OrderService.getRestaurantUSSD((completedOrder as any)?.restaurantPrice)}
+                    {OrderService.getRestaurantUSSD(restaurantAmount)}
                   </button>
                   <p className="text-xs text-red-600 font-bold">Cliquez obligatoirement sur ce bouton pour valider votre commande</p>
                 </div>
+
+                <button
+                  onClick={cancelOrderValidation}
+                  className="w-full bg-stone-200 dark:bg-stone-700 text-stone-900 dark:text-white py-4 rounded-2xl font-bold uppercase tracking-wider hover:bg-stone-300 dark:hover:bg-stone-600 transition-all"
+                >
+                  Retour au panier
+                </button>
               </div>
             )}
 
             {currentStep === 'ussd_dialing_restaurant' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto animate-pulse">
                   <Smartphone className="w-10 h-10 text-amber-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Transfert en cours...</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Transfert en cours...</h3>
                   <p className="text-stone-500 dark:text-stone-400">Veuillez patienter pendant que le transfert s'effectue</p>
                   <p className="text-amber-600 text-sm font-bold">Le code USSD a été lancé. Validez le transfert dans votre application téléphone.</p>
                   <p className="text-red-600 text-sm font-bold">Toute fraude entraîne un blocage définitif et une amende du triple.</p>
@@ -710,12 +703,12 @@ export default function App() {
             )}
 
             {currentStep === 'ussd_opened_restaurant' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto">
                   <Smartphone className="w-10 h-10 text-amber-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Retour obligatoire</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Retour obligatoire</h3>
                   <p className="text-stone-500 dark:text-stone-400">Revenez dans l'application et ajoutez la capture d'écran de votre paiement</p>
                   <p className="text-red-600 text-sm font-bold">Toute fraude entraîne un blocage définitif et une amende du triple.</p>
                 </div>
@@ -788,12 +781,12 @@ export default function App() {
             )}
 
             {currentStep === 'user_confirmed_restaurant' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto animate-pulse">
                   <Clock className="w-10 h-10 text-amber-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Paiement en cours de validation</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Paiement en cours de validation</h3>
                   <p className="text-stone-500 dark:text-stone-400">Veuillez patienter pendant que nous vérifions votre paiement...</p>
                   <p className="text-red-600 text-sm font-bold">Toute fraude entraîne un blocage définitif et une amende du triple.</p>
                 </div>
@@ -807,12 +800,12 @@ export default function App() {
             )}
 
             {currentStep === 'paying_commission' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto">
                   <Star className="w-10 h-10 text-blue-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Frais de service</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Frais de service</h3>
                   <p className="text-stone-500 dark:text-stone-400">Cliquez sur le code ci-dessous pour effectuer le transfert</p>
                 </div>
                 <div className="bg-stone-50 dark:bg-black/20 p-6 rounded-3xl">
@@ -836,7 +829,7 @@ export default function App() {
                       // Passer directement à l'étape d'attente
                       setCurrentStep('ussd_dialing_commission');
                     }}
-                    className="w-full bg-blue-600 text-white py-8 rounded-3xl font-black text-2xl uppercase tracking-widest flex items-center justify-center gap-4 hover:bg-blue-700 transition-all shadow-xl animate-pulse"
+                    className="w-full bg-blue-600 text-white py-5 sm:py-8 rounded-3xl font-black text-base sm:text-2xl uppercase tracking-wide sm:tracking-widest flex items-center justify-center gap-3 sm:gap-4 hover:bg-blue-700 transition-all shadow-xl animate-pulse break-all"
                   >
                     <Smartphone className="w-8 h-8" /> 
                     {OrderService.getCommissionUSSD()}
@@ -847,12 +840,12 @@ export default function App() {
             )}
 
             {currentStep === 'ussd_dialing_commission' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto animate-pulse">
                   <Smartphone className="w-10 h-10 text-blue-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Transfert en cours...</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Transfert en cours...</h3>
                   <p className="text-stone-500 dark:text-stone-400">Veuillez patienter pendant que le transfert s'effectue</p>
                   <p className="text-blue-600 text-sm font-bold">Le code USSD a été lancé. Validez le transfert dans votre application téléphone.</p>
                   <p className="text-red-600 text-sm font-bold">Toute fraude entraîne un blocage définitif et une amende du triple.</p>
@@ -875,12 +868,12 @@ export default function App() {
             )}
 
             {currentStep === 'ussd_opened_commission' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto">
                   <Smartphone className="w-10 h-10 text-blue-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Retour obligatoire</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Retour obligatoire</h3>
                   <p className="text-stone-500 dark:text-stone-400">Revenez dans l'application et ajoutez la capture d'écran de votre transfert</p>
                   <p className="text-red-600 text-sm font-bold">Toute fraude entraîne un blocage définitif et une amende du triple.</p>
                 </div>
@@ -953,12 +946,12 @@ export default function App() {
             )}
 
             {currentStep === 'user_confirmed_commission' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto animate-pulse">
                   <Clock className="w-10 h-10 text-blue-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Paiement en cours de validation</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Paiement en cours de validation</h3>
                   <p className="text-stone-500 dark:text-stone-400">Veuillez patienter pendant que nous vérifions votre transfert...</p>
                   <p className="text-red-600 text-sm font-bold">Toute fraude entraîne un blocage définitif et une amende du triple.</p>
                 </div>
@@ -972,12 +965,12 @@ export default function App() {
             )}
 
             {currentStep === 'waiting' && (
-              <div className="p-10 space-y-8 text-center">
+              <div className="p-6 sm:p-10 space-y-6 sm:space-y-8 text-center">
                 <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto animate-pulse">
                   <Clock className="w-10 h-10 text-amber-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-3xl font-black tracking-tight dark:text-white">Paiement en cours de validation</h3>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight dark:text-white">Paiement en cours de validation</h3>
                   <p className="text-stone-500 dark:text-stone-400">Veuillez patienter pendant que nous vérifions votre paiement...</p>
                   <p className="text-red-600 text-sm font-bold">Toute fraude entraîne un blocage définitif et une amende du triple.</p>
                 </div>
@@ -991,7 +984,7 @@ export default function App() {
             )}
 
             {currentStep === 'verifying' && (
-              <div className="p-10 space-y-10 text-center">
+              <div className="p-6 sm:p-10 space-y-8 sm:space-y-10 text-center">
                 <div className="relative w-32 h-32 mx-auto">
                   <svg className="w-full h-full transform -rotate-90">
                     <circle cx="64" cy="64" r="60" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-stone-100 dark:text-white/5" />
@@ -1014,7 +1007,7 @@ export default function App() {
               <div className="p-8 space-y-6">
                 <div className="bg-amber-600 text-white p-6 rounded-3xl text-center space-y-2">
                   <Check className="w-12 h-12 mx-auto" />
-                  <h3 className="text-2xl font-black tracking-tight">Commande Validée !</h3>
+                  <h3 className="text-xl sm:text-2xl font-black tracking-tight">Commande Validée !</h3>
                   <p className="text-amber-100 text-xs uppercase font-bold tracking-widest">Récupérez votre commande à l'arrivée</p>
                 </div>
 
@@ -1365,13 +1358,6 @@ export default function App() {
         setShowOptionsModal={setShowOptionsModal}
       />
 
-      {/* Admin Panel */}
-      <AdminPanel
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-        menu={menu}
-        setMenu={setMenu}
-      />
 
       {/* Commission System Script */}
       <script dangerouslySetInnerHTML={{
@@ -1433,14 +1419,21 @@ export default function App() {
               <Phone className="w-8 h-8 text-amber-600" />
               <div className="text-left">
                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Téléphone</p>
-                <p className="font-bold dark:text-white">+226 {ADMIN_PHONE}</p>
+                <p className="font-bold dark:text-white">+226 74503232</p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5">
               <MapPin className="w-8 h-8 text-amber-600" />
               <div className="text-left">
                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Adresse</p>
-                <p className="font-bold dark:text-white">Ouahigouya</p>
+                <a
+                  href={RESTAURANT_MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold dark:text-white text-amber-600 dark:text-amber-500 hover:underline"
+                >
+                  Google Maps — Resto Abdoul
+                </a>
               </div>
             </div>
           </div>

@@ -5,7 +5,7 @@ export interface MenuItem {
   description: string;
   price: number;
   priceString: string;
-  category: 'Grillades' | 'Burgers' | 'Pizzas' | 'Salades' | 'Boissons' | 'Plats' | 'Accompagnements' | 'Sandwichs';
+  category: 'Grillades' | 'Burgers' | 'Pizzas' | 'Salades' | 'Boissons' | 'Plats' | 'Accompagnements' | 'Sandwichs' | 'Fast Food';
   image: string;
   popular?: boolean;
   prepTime?: number; // en minutes
@@ -30,6 +30,7 @@ export interface OrderData {
   mode: string;
   eta: string;
   total: number;
+  restaurantPrice: number;
   commission: number;
   grandTotal: number;
 }

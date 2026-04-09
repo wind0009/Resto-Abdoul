@@ -37,9 +37,10 @@ import { OrderButton } from './OrderButton';
 import { useOrderFlow } from './useOrderFlow';
 import { OrderOptionsModal } from './OrderOptionsModal';
 import { OrderService } from './OrderService';
-import { Check, Clipboard, Download, Loader2 as LoaderIcon } from 'lucide-react';
+import { Check, Clipboard, Download } from 'lucide-react';
 
 const WHATSAPP_NUMBER = "74503232";
+const ADMIN_PHONE = "74503232";
 const RESTAURANT_MAPS_URL = "https://maps.app.goo.gl/iQGzFA3ZEERyUYLw7";
 
 const MENU_DATA: MenuItem[] = [
@@ -192,14 +193,14 @@ const LocationFinder = () => {
         </div>
         <div>
           <h3 className="text-3xl font-black tracking-tighter dark:text-white">Nous Trouver</h3>
-          <p className="text-stone-600 dark:text-stone-400 text-sm">Chez Abdoul Fast Food - À côté du D DR Sport et Loisir</p>
+          <p className="text-stone-600 dark:text-stone-400 text-sm">Chez Abdoul Fast Food - À côté de la DR Sport et Loisir</p>
         </div>
       </div>
 
       <div className="min-h-[100px] flex flex-col justify-center">
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
           <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
-            Retrouvez-nous à Ouahigouya, centre-ville, juste à côté du D DR Sport et Loisir pour vos commandes rapides à emporter.
+            Retrouvez-nous à Ouahigouya, centre-ville, juste à côté de la DR Sport et Loisir pour vos commandes rapides à emporter.
           </p>
           <div className="flex flex-wrap gap-4">
             <a
@@ -226,12 +227,64 @@ const LocationFinder = () => {
   );
 };
 
+const SimpleAdminPanel = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const [pass, setPass] = useState('');
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleLogin = () => {
+    if (pass === ADMIN_PHONE) {
+      setIsAuthed(true);
+      alert('Connecté en mode admin');
+    } else {
+      alert('Code incorrect');
+    }
+  };
+
+  if (!isAuthed) {
+    return (
+      <div className="fixed inset-0 z-[130] flex items-center justify-center p-6">
+        <div className="absolute inset-0 bg-stone-900/90 backdrop-blur-md" onClick={onClose}></div>
+        <div className="relative bg-white dark:bg-stone-900 w-full max-w-sm rounded-[2rem] p-8 space-y-6 animate-in zoom-in-95">
+          <div className="text-center space-y-3">
+            <Settings className="w-12 h-12 text-amber-600 mx-auto" />
+            <h3 className="text-xl font-bold tracking-tight dark:text-white">Admin</h3>
+          </div>
+          <input
+            type="password"
+            placeholder="Code admin"
+            value={pass}
+            onChange={e => setPass(e.target.value)}
+            className="w-full bg-stone-50 dark:bg-stone-950 border-none p-4 rounded-xl font-medium focus:ring-2 ring-amber-600 outline-none"
+          />
+          <button onClick={handleLogin} className="w-full bg-amber-600 text-white py-3 rounded-xl font-bold text-sm">Connexion</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[130] flex items-center justify-center p-6">
+      <div className="absolute inset-0 bg-stone-900/90 backdrop-blur-md" onClick={onClose}></div>
+      <div className="relative bg-white dark:bg-stone-900 w-full max-w-sm rounded-[2rem] p-8 space-y-6 animate-in zoom-in-95">
+        <div className="text-center space-y-3">
+          <Check className="w-12 h-12 text-green-600 mx-auto" />
+          <h3 className="text-xl font-bold tracking-tight dark:text-white">Admin Connecté</h3>
+        </div>
+        <p className="text-center text-stone-600 dark:text-stone-400 text-sm">Mode administrateur activé</p>
+        <button onClick={onClose} className="w-full bg-stone-600 text-white py-3 rounded-xl font-bold text-sm">Fermer</button>
+      </div>
+    </div>
+  );
+};
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [menu, setMenu] = useState<MenuItem[]>(() => {
     const saved = localStorage.getItem('abdoul_menu');
     return saved ? JSON.parse(saved) : MENU_DATA;
@@ -598,7 +651,6 @@ export default function App() {
                     <h4 className="text-xl font-black tracking-tight dark:text-white">{item.name}</h4>
                     <span className="text-amber-600 font-black text-lg">{item.priceString}</span>
                   </div>
-                  <p className="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">{item.description}</p>
                   <button 
                     onClick={() => addToCart(item)}
                     className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-black uppercase tracking-[0.2em] text-xs transition-all"
@@ -1450,11 +1502,25 @@ export default function App() {
           <div className="text-center">
             <p className="text-[10px] text-stone-500 uppercase tracking-widest">Développé par Sawadogo Stephane & Dabire Windson</p>
           </div>
-          <div className="text-center md:text-right">
-            <p className="text-[10px] text-stone-500">Tous droits réservés © 2026</p>
+          <div className="max-w-7xl mx-auto px-6 text-center space-y-8">
+            <p className="text-stone-500 dark:text-stone-400 text-sm">
+              2024 Resto Abdoul. Tous droits réservés.
+            </p>
+            <button 
+              onClick={() => setIsAdminOpen(true)}
+              className="text-stone-400 dark:text-stone-600 text-xs hover:text-amber-600 transition-colors"
+            >
+              Admin
+            </button>
           </div>
         </div>
       </footer>
+
+      {/* Simple Admin Panel */}
+      <SimpleAdminPanel
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+      />
     </div>
   );
 }

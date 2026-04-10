@@ -1716,14 +1716,14 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
             <p className="text-xs font-bold uppercase tracking-widest text-amber-500">Resto Abdoul</p>
-            <p className="text-[10px] text-stone-400 mt-1">Version 2.0 • 2026</p>
+            
           </div>
           <div className="text-center">
             <p className="text-[10px] text-stone-500 uppercase tracking-widest">Développé par Sawadogo Stephane & Dabire Windson</p>
           </div>
           <div className="max-w-7xl mx-auto px-6 text-center space-y-8">
             <p className="text-stone-500 dark:text-stone-400 text-sm">
-              2024 Resto Abdoul. Tous droits réservés.
+              Resto Abdoul. Tous droits réservés.
             </p>
             <button 
               onClick={() => setIsAdminOpen(true)}

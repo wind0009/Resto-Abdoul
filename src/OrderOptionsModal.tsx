@@ -299,17 +299,6 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
                   <option value="22:00">22h00 - 22h30</option>
                   <option value="22:30">22h30 - 23h00</option>
                   <option value="23:00">23h00 - 23h30</option>
-                  <option value="23:30">23h30 - 00h00</option>
-                  <option value="00:00">00h00 - 00h30</option>
-                  <option value="00:30">00h30 - 01h00</option>
-                  <option value="01:00">01h00 - 01h30</option>
-                  <option value="01:30">01h30 - 02h00</option>
-                  <option value="02:00">02h00 - 02h30</option>
-                  <option value="02:30">02h30 - 03h00</option>
-                  <option value="03:00">03h00 - 03h30</option>
-                  <option value="03:30">03h30 - 04h00</option>
-                  <option value="04:00">04h00 - 04h30</option>
-                  <option value="04:30">04h30 - 05h00</option>
                 </select>
               </div>
 

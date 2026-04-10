@@ -48,138 +48,158 @@ const TERRASSE_MAPS_URL = "https://maps.app.goo.gl/S7za4H9LGYfNsAsH9";
 
 const INITIAL_MENU_DATA: MenuItem[] = [
   {
-    "id": "1",
-    "category": "Terrasse",
-    "name": "Poulet",
-    "price": 3500,
-    "priceString": "3,500 FCFA",
-    "description": "Poulet frais grillé au feu de bois, accompagné de sauce maison.",
-    "image": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=800",
-    "popular": true,
-    "prepTime": 20
+    id: 'ff1',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Petit',
+    price: 1000,
+    priceString: '1,000 FCFA',
+    description: 'Morceau de poulet pané croustillant, idéal pour une petite faim.',
+    image: '/poulet pané.png'
   },
   {
-    "id": "2",
-    "category": "Terrasse",
-    "name": "Poisson",
-    "price": 2000,
-    "priceString": "2,000 FCFA",
-    "description": "Poisson frais grillé, assaisonné aux épices locales.",
-    "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 15
+    id: 'ff2',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Moyen',
+    price: 1500,
+    priceString: '1,500 FCFA',
+    description: 'Poulet pané de taille moyenne avec frites et sauce.',
+    image: '/poulet pané.png'
   },
   {
-    "id": "3",
-    "category": "Terrasse",
-    "name": "Poisson Premium",
-    "price": 2500,
-    "priceString": "2,500 FCFA",
-    "description": "Grande portion de poisson grillé avec accompagnements.",
-    "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 15
+    id: 'ff3',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Grand',
+    price: 2000,
+    priceString: '2,000 FCFA',
+    description: 'Generux poulet pané avec double portion de frites et sauces.',
+    image: '/poulet pané.png'
   },
   {
-    "id": "4",
-    "category": "Terrasse",
-    "name": "Poisson Royal",
-    "price": 3000,
-    "priceString": "3,000 FCFA",
-    "description": "Poisson de choix grillé avec sauce spéciale du chef.",
-    "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 20
+    id: 'ff4',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Maxi',
+    price: 2500,
+    priceString: '2,500 FCFA',
+    description: 'Portion généreuse de poulet pané avec frites et sauces.',
+    image: '/poulet pané.png'
   },
   {
-    "id": "5",
-    "category": "Fast Food",
-    "name": "Poulet Pané Frite",
-    "price": 3000,
-    "priceString": "3,000 FCFA",
-    "description": "Poulet pané croustillant avec frites maison.",
-    "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800",
-    "popular": true,
-    "prepTime": 10
+    id: 'ff5',
+    category: 'Fast Food',
+    name: 'Poulet Pané - Entier',
+    price: 5000,
+    priceString: '5,000 FCFA',
+    description: 'Poulet entier pané, parfait pour partager, accompagné de frites.',
+    image: '/poulet pané.png'
   },
   {
-    "id": "6",
-    "category": "Fast Food",
-    "name": "Panini Classique",
-    "price": 700,
-    "priceString": "700 FCFA",
-    "description": "Panini chaud avec fromage et jambon.",
-    "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 5
+    id: 'ff6',
+    category: 'Fast Food',
+    name: 'Chawarma - Simple',
+    price: 1500,
+    priceString: '1,500 FCFA',
+    description: 'Chawarma simple dans pain pita avec crudités et sauce.',
+    image: '/charwarma.png'
   },
   {
-    "id": "7",
-    "category": "Fast Food",
-    "name": "Panini Suprême",
-    "price": 800,
-    "priceString": "800 FCFA",
-    "description": "Panini avec viande, fromage et légumes grillés.",
-    "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 7
+    id: 'ff7',
+    category: 'Fast Food',
+    name: 'Chawarma - Complet',
+    price: 2000,
+    priceString: '2,000 FCFA',
+    description: 'Chawarma complet avec double viande, frites et sauces variées.',
+    image: '/charwarma.png'
   },
   {
-    "id": "8",
-    "category": "Fast Food",
-    "name": "Panini Royal",
-    "price": 1000,
-    "priceString": "1,000 FCFA",
-    "description": "Panini premium avec steak et fromage spécial.",
-    "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 8
+    id: 'ff8',
+    category: 'Fast Food',
+    name: 'Pain Anglais',
+    price: 1000,
+    priceString: '1,000 FCFA',
+    description: 'Pain anglais grillé avec beurre et confiture maison.',
+    image: '/pain anglais.png'
   },
   {
-    "id": "9",
-    "category": "Fast Food",
-    "name": "Chawarma",
-    "price": 1000,
-    "priceString": "1,000 FCFA",
-    "description": "Chawarma traditionnel avec sauce yaourt.",
-    "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800",
-    "popular": true,
-    "prepTime": 10
+    id: 'ff9',
+    category: 'Fast Food',
+    name: 'Frites',
+    price: 1000,
+    priceString: '1,000 FCFA',
+    description: 'Frites maison croustillantes, sel et poivre.',
+    image: '/frites.png'
   },
   {
-    "id": "10",
-    "category": "Fast Food",
-    "name": "Frite",
-    "price": 1000,
-    "priceString": "1,000 FCFA",
-    "description": "Frites fraîches et croustillantes.",
-    "image": "https://images.unsplash.com/photo-1576107232686-3c4030a8667a?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 5
+    id: 'ff10',
+    category: 'Fast Food',
+    name: 'Saucisse',
+    price: 500,
+    priceString: '500 FCFA',
+    description: 'Saucisse grillée au feu de bois, servie seule ou avec frites.',
+    image: '/saucisse.png'
   },
   {
-    "id": "11",
-    "category": "Fast Food",
-    "name": "Brochette",
-    "price": 200,
-    "priceString": "200 FCFA",
-    "description": "Brochette de viande grillée.",
-    "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 8
+    id: 'ff11',
+    category: 'Fast Food',
+    name: 'Merguez — 2 pour 500 FCFA',
+    price: 500,
+    priceString: '500 FCFA',
+    description: 'Deux merguez épicées grillées, servies avec harissa.',
+    image: '/mergez.png'
   },
   {
-    "id": "12",
-    "category": "Fast Food",
-    "name": "Merguez",
-    "price": 200,
-    "priceString": "200 FCFA",
-    "description": "Saucisse merguez épicée grillée.",
-    "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 6
+    id: 'ff12',
+    category: 'Fast Food',
+    name: 'Poulet à l\'ail',
+    price: 5000,
+    priceString: '5,000 FCFA',
+    description: 'Poulet mariné à l\'ail, grillé et servi avec accompagnements.',
+    image: '/poulet-pane.png'
   },
   {
-    "id": "13",
-    "category": "Terrasse",
-    "name": "Spaghetti",
-    "price": 1000,
-    "priceString": "1,000 FCFA",
-    "description": "Spaghetti avec sauce bolognaise maison.",
-    "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=800",
-    "prepTime": 12
-  }
+    id: 't1',
+    category: 'Terrasse',
+    name: 'Poulet braisé assaisonné',
+    price: 5000,
+    priceString: '5,000 FCFA',
+    description: 'Poulet braisé aux épices maison, juteux et parfumé.',
+    image: '/Poulet braisé assaisonné.png'
+  },
+  {
+    id: 't2',
+    category: 'Terrasse',
+    name: 'Frites',
+    price: 1000,
+    priceString: '1,000 FCFA',
+    description: 'Frites maison croustillantes.',
+    image: '/frites.png'
+  },
+  {
+    id: 't3',
+    category: 'Terrasse',
+    name: 'Poulet au couscous',
+    price: 6000,
+    priceString: '6,000 FCFA',
+    description: 'Couscous traditionnel au poulet braisé.',
+    image: '/Poulet au couscous.png'
+  },
+  {
+    id: 't4',
+    category: 'Terrasse',
+    name: 'Poisson assaisonné + attiéké (portion standard)',
+    price: 3500,
+    priceString: '3,500 FCFA',
+    description: 'Poisson assaisonné servi avec attiéké.',
+    image: '/Poisson assaisonné + attiéké.png'
+  },
+  {
+    id: 't5',
+    category: 'Terrasse',
+    name: 'Poisson assaisonné + attiéké (portion grande)',
+    price: 4000,
+    priceString: '4,000 FCFA',
+    description: 'Grande portion de poisson assaisonné avec attiéké.',
+    image: '/Poisson assaisonné + attiéké.png'
+  },
 ];
 
 const REVIEWS = [

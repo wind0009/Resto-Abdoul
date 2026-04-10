@@ -2,16 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Settings,
   Trash2,
-  PlusCircle,
+  Plus,
+  Minus,
   Save,
   X,
-  Upload,
+  ImagePlus,
   Loader2,
   Check,
-  ShoppingBag,
-  Trees,
   Eye,
   EyeOff,
+  ChevronDown,
 } from 'lucide-react';
 import type { MenuItem, MenuCategory } from './types';
 import {
@@ -23,7 +23,7 @@ import {
 const ADMIN_CODE = '7450';
 
 function formatPriceString(n: number): string {
-  return `${Number(n).toLocaleString('fr-FR')} FCFA`;
+  return `${Number(n).toLocaleString('en-US')} FCFA`;
 }
 
 function newMenuItem(category: MenuCategory): MenuItem {
@@ -31,7 +31,7 @@ function newMenuItem(category: MenuCategory): MenuItem {
     id: `new_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     category,
     name: 'Nouveau plat',
-    description: 'Description du plat',
+    description: '',
     price: 1000,
     priceString: formatPriceString(1000),
     image: '/logo.png',
@@ -45,14 +45,15 @@ type Props = {
   setMenu: React.Dispatch<React.SetStateAction<MenuItem[]>>;
 };
 
-/* ─── Toast ─────────────────────────────────────────────────────────────── */
+/* ─── Toast notification ────────────────────────────────────────────────── */
 function Toast({ msg, ok }: { msg: string; ok: boolean }) {
   return (
     <div
-      className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3
+      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3
         px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm whitespace-nowrap
-        ${ok ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}
-        animate-bounce-once`}
+        ${ok ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}
+      role="status"
+      aria-live="polite"
     >
       {ok ? <Check className="w-5 h-5 flex-shrink-0" /> : <X className="w-5 h-5 flex-shrink-0" />}
       {msg}
@@ -60,8 +61,8 @@ function Toast({ msg, ok }: { msg: string; ok: boolean }) {
   );
 }
 
-/* ─── Item card (inside panel) ───────────────────────────────────────────── */
-function ItemCard({
+/* ─── Single menu item editor card ──────────────────────────────────────── */
+function ItemEditor({
   item,
   onUpdate,
   onRemove,
@@ -74,97 +75,186 @@ function ItemCard({
   onImageClick: (id: string) => void;
   isUploading: boolean;
 }) {
+  const [showDesc, setShowDesc] = useState(!!item.description);
+  const [showImageUrl, setShowImageUrl] = useState(false);
+
   return (
-    <article className="group bg-white dark:bg-stone-800 rounded-[1.5rem] overflow-hidden border border-stone-100 dark:border-white/10 shadow-sm hover:shadow-xl transition-all duration-300">
-      {/* Image */}
-      <div className="relative w-full h-40 overflow-hidden bg-stone-100 dark:bg-stone-900">
-        <img
-          src={item.image}
-          alt={item.name}
-          className="w-full h-full object-cover"
-          onError={(e) => { (e.target as HTMLImageElement).src = '/logo.png'; }}
-        />
+    <article className="bg-stone-900 rounded-[1.5rem] overflow-hidden border border-stone-700/50">
+      {/* ── Photo ── */}
+      <div className="p-4 pb-0">
+        <div className="w-full max-w-[280px] h-[180px] rounded-2xl overflow-hidden bg-stone-800">
+          <img
+            src={item.image}
+            alt={item.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/logo.png';
+            }}
+          />
+        </div>
+      </div>
+
+      {/* ── Upload button ── */}
+      <div className="px-4 pt-3">
         <button
           type="button"
           onClick={() => onImageClick(item.id)}
           disabled={isUploading}
-          aria-label="Changer la photo"
-          className="absolute inset-0 flex flex-col items-center justify-center gap-2
-            bg-stone-900/0 group-hover:bg-stone-900/50 transition-all duration-300
-            text-white opacity-0 group-hover:opacity-100"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl
+            border-2 border-dashed border-amber-600/60 text-amber-500
+            hover:border-amber-500 hover:text-amber-400 transition-colors text-sm font-bold"
         >
           {isUploading ? (
-            <Loader2 className="w-8 h-8 animate-spin" />
+            <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
-            <>
-              <Upload className="w-8 h-8 drop-shadow" />
-              <span className="text-xs font-bold uppercase tracking-widest drop-shadow">Changer la photo</span>
-            </>
+            <ImagePlus className="w-5 h-5" />
           )}
+          {isUploading ? 'Envoi en cours…' : 'Photo (galerie ou appareil photo)'}
         </button>
-        {/* Category badge */}
-        <span className="absolute top-3 left-3 bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
-          {item.category}
-        </span>
       </div>
 
-      {/* Fields */}
-      <div className="p-4 space-y-3">
+      {/* ── Fields ── */}
+      <div className="p-4 space-y-4">
         {/* Name */}
-        <input
-          value={item.name}
-          onChange={(e) => onUpdate(item.id, { name: e.target.value })}
-          placeholder="Nom du plat"
-          className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-white/10
-            rounded-xl px-3 py-2 text-sm font-bold dark:text-white focus:outline-none focus:ring-2 ring-amber-500"
-        />
-
-        {/* Price */}
-        <div className="flex items-center gap-2">
+        <div className="space-y-1.5">
+          <label className="text-stone-400 text-xs font-bold uppercase tracking-wider">Nom du plat</label>
           <input
-            type="number"
-            min={0}
-            value={item.price}
-            onChange={(e) => onUpdate(item.id, { price: Number(e.target.value) })}
-            className="w-32 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-white/10
-              rounded-xl px-3 py-2 text-sm dark:text-white focus:outline-none focus:ring-2 ring-amber-500"
+            value={item.name}
+            onChange={(e) => onUpdate(item.id, { name: e.target.value })}
+            placeholder="Nom du plat"
+            className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3
+              text-white text-sm font-medium focus:outline-none focus:border-amber-600
+              placeholder:text-stone-500 transition-colors"
           />
-          <span className="text-amber-600 font-black text-sm flex-1">{item.priceString}</span>
         </div>
 
-        {/* Description */}
-        <textarea
-          value={item.description ?? ''}
-          onChange={(e) => onUpdate(item.id, { description: e.target.value })}
-          placeholder="Description (optionnel)"
-          rows={2}
-          className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-white/10
-            rounded-xl px-3 py-2 text-xs dark:text-white resize-none focus:outline-none focus:ring-2 ring-amber-500"
-        />
+        {/* Price */}
+        <div className="space-y-1.5">
+          <label className="text-stone-400 text-xs font-bold uppercase tracking-wider">Prix (FCFA)</label>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => onUpdate(item.id, { price: Math.max(0, (item.price || 0) - 100) })}
+              className="w-10 h-10 flex items-center justify-center rounded-xl
+                bg-stone-800 border border-stone-700 text-stone-300 hover:border-amber-600
+                hover:text-amber-500 transition-colors"
+              aria-label="Réduire le prix"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <input
+              type="number"
+              min={0}
+              value={item.price}
+              onChange={(e) => onUpdate(item.id, { price: Number(e.target.value) })}
+              className="flex-1 bg-stone-800 border border-stone-700 rounded-xl px-4 py-2.5
+                text-white text-center text-lg font-bold focus:outline-none focus:border-amber-600
+                transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => onUpdate(item.id, { price: (item.price || 0) + 100 })}
+              className="w-10 h-10 flex items-center justify-center rounded-xl
+                bg-stone-800 border border-stone-700 text-stone-300 hover:border-amber-600
+                hover:text-amber-500 transition-colors"
+              aria-label="Augmenter le prix"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          <p className="text-amber-500 font-bold text-sm text-center">{item.priceString}</p>
+        </div>
+
+        {/* Category selector */}
+        <div className="space-y-1.5">
+          <label className="text-stone-400 text-xs font-bold uppercase tracking-wider">
+            Où apparaît sur le site ?
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {(['Fast Food', 'Terrasse'] as MenuCategory[]).map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => onUpdate(item.id, { category: cat })}
+                className={`py-2.5 rounded-xl font-bold text-sm transition-all
+                  ${item.category === cat
+                    ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20'
+                    : 'bg-stone-800 border border-stone-700 text-stone-400 hover:border-amber-600/50'
+                  }`}
+              >
+                {cat === 'Fast Food' ? 'Fast food' : 'Terrasse'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Description (collapsible) */}
+        <div className="space-y-1.5">
+          <button
+            type="button"
+            onClick={() => setShowDesc(!showDesc)}
+            className="flex items-center gap-1 text-stone-400 text-xs font-bold uppercase tracking-wider hover:text-amber-500 transition-colors"
+          >
+            Description (facultatif)
+            <ChevronDown className={`w-3 h-3 transition-transform ${showDesc ? 'rotate-180' : ''}`} />
+          </button>
+          {showDesc && (
+            <textarea
+              value={item.description ?? ''}
+              onChange={(e) => onUpdate(item.id, { description: e.target.value })}
+              placeholder="Décrivez votre plat…"
+              rows={3}
+              className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3
+                text-white text-sm resize-none focus:outline-none focus:border-amber-600
+                placeholder:text-stone-500 transition-colors"
+            />
+          )}
+        </div>
+
+        {/* Image URL (collapsible / advanced) */}
+        <div className="space-y-1.5">
+          <button
+            type="button"
+            onClick={() => setShowImageUrl(!showImageUrl)}
+            className="text-amber-600/60 text-xs underline hover:text-amber-500 transition-colors"
+          >
+            Lien de l'image (pour utilisateurs avancés)
+          </button>
+          {showImageUrl && (
+            <input
+              value={item.image}
+              onChange={(e) => onUpdate(item.id, { image: e.target.value })}
+              placeholder="/image.png ou https://..."
+              className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3
+                text-white text-xs font-mono focus:outline-none focus:border-amber-600
+                placeholder:text-stone-500 transition-colors"
+            />
+          )}
+        </div>
 
         {/* Delete */}
         <button
           type="button"
           onClick={() => onRemove(item.id)}
-          className="w-full flex items-center justify-center gap-2 py-2 rounded-xl
-            text-red-500 border border-red-100 dark:border-red-900/40
-            hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors text-xs font-bold uppercase tracking-widest"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl
+            border border-red-500/40 text-red-400 font-bold text-sm
+            hover:bg-red-500/10 hover:border-red-400 transition-colors"
         >
           <Trash2 className="w-4 h-4" />
-          Supprimer
+          Enlever ce plat
         </button>
       </div>
     </article>
   );
 }
 
-/* ─── Main component ─────────────────────────────────────────────────────── */
+/* ─── Main AdminMenuPanel component ─────────────────────────────────────── */
 export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
   const [pass, setPass] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
   const [draft, setDraft] = useState<MenuItem[]>([]);
-  const [activeTab, setActiveTab] = useState<MenuCategory>('Fast Food');
+  const [activeFilter, setActiveFilter] = useState<'Tous' | MenuCategory>('Tous');
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
@@ -201,7 +291,7 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
     onClose();
   };
 
-  /* ── Save: push directly to Supabase so all clients receive real-time update ── */
+  /* ── Save: push directly to Supabase ── */
   const saveAll = async () => {
     setIsSaving(true);
     const finalized = draft.map((item) => ({
@@ -218,18 +308,14 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
           { onConflict: 'id' }
         );
         if (error) throw error;
-        // local state will be updated via the realtime channel subscription in App.tsx
-        // but we force it immediately for the admin's own view
         setMenu(finalized);
-        pushToast('✅ Menu publié en temps réel pour tous les visiteurs !', true);
+        pushToast('✅ Menu publié ! Visible par tous les visiteurs.', true);
       } else {
-        // No Supabase — update local only
         setMenu(finalized);
         pushToast('Sauvegardé localement (Supabase non configuré)', false);
       }
     } catch (err) {
       console.error('[Admin] Save error:', err);
-      // fallback: at least update local state
       setMenu(finalized);
       pushToast('Erreur réseau — sauvegardé localement', false);
     } finally {
@@ -257,7 +343,10 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
   };
 
   const addItem = () => {
-    setDraft((prev) => [...prev, newMenuItem(activeTab)]);
+    const cat: MenuCategory = activeFilter === 'Tous' ? 'Fast Food' : activeFilter;
+    setDraft((prev) => [newMenuItem(cat), ...prev]);
+    // scroll to top
+    document.getElementById('admin-items-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleImageClick = (id: string) => {
@@ -293,7 +382,7 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
         throw new Error('No Supabase');
       }
     } catch {
-      /* Fallback: base64 embed (works locally or without storage) */
+      /* Fallback: base64 embed */
       const reader = new FileReader();
       reader.onload = (ev) => {
         updateItem(itemId, { image: ev.target?.result as string });
@@ -306,10 +395,15 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
     }
   };
 
-  /* ── Displayed items for current tab ── */
-  const tabItems = draft.filter((i) => i.category === activeTab);
-  const fastCount = draft.filter((i) => i.category === 'Fast Food').length;
-  const terrCount = draft.filter((i) => i.category === 'Terrasse').length;
+  /* ── Filtered items ── */
+  const filteredItems =
+    activeFilter === 'Tous' ? draft : draft.filter((i) => i.category === activeFilter);
+
+  const tabs: { label: string; value: 'Tous' | MenuCategory }[] = [
+    { label: 'Tous', value: 'Tous' },
+    { label: 'Fast food', value: 'Fast Food' },
+    { label: 'Terrasse', value: 'Terrasse' },
+  ];
 
   /* ─────────────── LOGIN SCREEN ─────────────── */
   if (!isAuthed) {
@@ -317,14 +411,14 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
       <>
         {toast && <Toast msg={toast.msg} ok={toast.ok} />}
         <div className="fixed inset-0 z-[130] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-stone-900/90 backdrop-blur-md" onClick={handleClose} />
-          <div className="relative bg-white dark:bg-stone-900 w-full max-w-sm rounded-[2rem] p-8 space-y-6 shadow-2xl">
+          <div className="absolute inset-0 bg-stone-950/95 backdrop-blur-md" onClick={handleClose} />
+          <div className="relative bg-stone-900 w-full max-w-sm rounded-[2rem] p-8 space-y-6 shadow-2xl border border-stone-700/50">
             <div className="text-center space-y-3">
               <div className="w-16 h-16 bg-amber-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-amber-600/30">
                 <Settings className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-black tracking-tight dark:text-white">Mode Admin</h3>
-              <p className="text-stone-500 dark:text-stone-400 text-xs">Saisissez le code d'accès pour gérer le menu</p>
+              <h3 className="text-xl font-black tracking-tight text-white">Mode Admin</h3>
+              <p className="text-stone-400 text-xs">Saisissez le code d'accès pour gérer le menu</p>
             </div>
             <div className="relative">
               <input
@@ -334,13 +428,13 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
                 value={pass}
                 onChange={(e) => setPass(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                className="w-full bg-stone-50 dark:bg-stone-950 px-4 py-3 pr-12 rounded-xl font-bold
-                  text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 ring-amber-500 dark:text-white"
+                className="w-full bg-stone-800 border border-stone-700 px-4 py-3 pr-12 rounded-xl font-bold
+                  text-center text-2xl tracking-[0.5em] text-white focus:outline-none focus:border-amber-600 transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-amber-600"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-500 hover:text-amber-500 transition-colors"
                 aria-label={showPass ? 'Masquer' : 'Afficher'}
               >
                 {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -349,7 +443,8 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
             <button
               type="button"
               onClick={handleLogin}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-colors"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl
+                font-black text-sm uppercase tracking-widest transition-colors"
             >
               Connexion
             </button>
@@ -359,7 +454,7 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
     );
   }
 
-  /* ─────────────── ADMIN DASHBOARD ─────────────── */
+  /* ─────────────── ADMIN DASHBOARD (full screen) ─────────────── */
   return (
     <>
       {toast && <Toast msg={toast.msg} ok={toast.ok} />}
@@ -373,110 +468,94 @@ export function AdminMenuPanel({ isOpen, onClose, menu, setMenu }: Props) {
         onChange={handleFileChange}
       />
 
-      <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-stone-900/90 backdrop-blur-md" onClick={handleClose} />
+      <div className="fixed inset-0 z-[130] bg-stone-950 flex flex-col">
+        {/* ── Header ── */}
+        <header className="flex items-start justify-between px-5 pt-5 pb-2">
+          <div>
+            <h2 className="text-xl font-black text-white tracking-tight">Mon menu</h2>
+            <p className="text-stone-500 text-xs mt-0.5">Enregistre tout seul sur cet appareil</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="p-2 rounded-full bg-stone-800 border border-stone-700 text-stone-400
+              hover:text-white hover:border-stone-500 transition-colors"
+            aria-label="Fermer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </header>
 
-        <div className="relative bg-stone-50 dark:bg-stone-900 w-full max-w-4xl max-h-[92vh] rounded-[2rem] flex flex-col shadow-2xl overflow-hidden">
+        {/* ── + Nouveau plat ── */}
+        <div className="px-5 pb-3">
+          <button
+            type="button"
+            onClick={addItem}
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl
+              bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm
+              uppercase tracking-wider transition-colors shadow-lg shadow-amber-600/20"
+          >
+            <Plus className="w-5 h-5" />
+            Nouveau plat
+          </button>
+        </div>
 
-          {/* ── Header ── */}
-          <div className="flex items-center justify-between gap-4 px-6 py-5 bg-stone-900 dark:bg-stone-950">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-600/30">
-                <Settings className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-white tracking-tight">Gestion du Menu</h3>
-                <p className="text-[10px] text-stone-400 uppercase tracking-widest">Modifications en temps réel</p>
-              </div>
+        {/* ── Filter tabs ── */}
+        <div className="flex gap-2 px-5 pb-4">
+          {tabs.map(({ label, value }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setActiveFilter(value)}
+              className={`px-4 py-2 rounded-full text-sm font-bold transition-all
+                ${activeFilter === value
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-stone-800 border border-stone-700 text-stone-400 hover:text-white hover:border-stone-500'
+                }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Items list (scrollable) ── */}
+        <div id="admin-items-scroll" className="flex-1 overflow-y-auto px-5 pb-28 space-y-5">
+          {filteredItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4 text-stone-500">
+              <ImagePlus className="w-12 h-12 opacity-30" />
+              <p className="text-sm font-bold">Aucun plat dans cette catégorie</p>
             </div>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="p-2 rounded-full hover:bg-white/10 text-stone-400 hover:text-white transition-colors"
-              aria-label="Fermer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          ) : (
+            filteredItems.map((item) => (
+              <ItemEditor
+                key={item.id}
+                item={item}
+                onUpdate={updateItem}
+                onRemove={removeItem}
+                onImageClick={handleImageClick}
+                isUploading={uploadingId === item.id}
+              />
+            ))
+          )}
+        </div>
 
-          {/* ── Tabs ── */}
-          <div className="flex gap-2 px-6 pt-4 pb-0 bg-stone-50 dark:bg-stone-900">
-            {([
-              { cat: 'Fast Food' as MenuCategory, icon: ShoppingBag, count: fastCount },
-              { cat: 'Terrasse' as MenuCategory, icon: Trees, count: terrCount },
-            ] as const).map(({ cat, icon: Icon, count }) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setActiveTab(cat)}
-                className={`flex items-center gap-2 px-5 py-3 rounded-t-2xl font-black text-sm uppercase tracking-widest transition-all
-                  ${activeTab === cat
-                    ? 'bg-white dark:bg-stone-800 text-amber-600 shadow-sm'
-                    : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'
-                  }`}
-              >
-                <Icon className="w-4 h-4" />
-                {cat}
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black
-                  ${activeTab === cat ? 'bg-amber-600 text-white' : 'bg-stone-200 dark:bg-stone-700 text-stone-500'}`}>
-                  {count}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* ── Grid of cards ── */}
-          <div className="flex-1 overflow-y-auto bg-white dark:bg-stone-800 p-6">
-            {tabItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-4 text-stone-400">
-                <ShoppingBag className="w-12 h-12 opacity-30" />
-                <p className="text-sm font-bold">Aucun plat dans cette catégorie</p>
-              </div>
+        {/* ── Fixed save button at bottom ── */}
+        <div className="fixed bottom-0 left-0 right-0 z-[140] px-5 py-4 bg-gradient-to-t from-stone-950 via-stone-950/95 to-transparent">
+          <button
+            type="button"
+            onClick={saveAll}
+            disabled={isSaving}
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl
+              bg-amber-600 hover:bg-amber-700 disabled:opacity-60
+              text-white font-black text-sm uppercase tracking-widest
+              transition-all shadow-xl shadow-amber-600/30"
+          >
+            {isSaving ? (
+              <><Loader2 className="w-5 h-5 animate-spin" />Publication en cours…</>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {tabItems.map((item) => (
-                  <ItemCard
-                    key={item.id}
-                    item={item}
-                    onUpdate={updateItem}
-                    onRemove={removeItem}
-                    onImageClick={handleImageClick}
-                    isUploading={uploadingId === item.id}
-                  />
-                ))}
-              </div>
+              <><Save className="w-5 h-5" />Enregistrer et Publier</>
             )}
-          </div>
-
-          {/* ── Footer actions ── */}
-          <div className="px-6 py-4 bg-stone-50 dark:bg-stone-900 border-t border-stone-100 dark:border-white/10 flex flex-col sm:flex-row gap-3">
-            <button
-              type="button"
-              onClick={addItem}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2
-                bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600
-                text-stone-900 dark:text-white py-3 px-5 rounded-xl font-black text-sm uppercase tracking-widest transition-colors"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Ajouter un plat
-            </button>
-
-            <button
-              type="button"
-              onClick={saveAll}
-              disabled={isSaving}
-              className="flex-1 inline-flex items-center justify-center gap-2
-                bg-amber-600 hover:bg-amber-700 disabled:opacity-60
-                text-white py-3 px-6 rounded-xl font-black text-sm uppercase tracking-widest
-                transition-all shadow-lg shadow-amber-600/30"
-            >
-              {isSaving ? (
-                <><Loader2 className="w-4 h-4 animate-spin" />Publication en cours…</>
-              ) : (
-                <><Save className="w-4 h-4" />Enregistrer et Publier</>
-              )}
-            </button>
-          </div>
+          </button>
         </div>
       </div>
     </>

@@ -372,8 +372,6 @@ export default function App() {
         applyRemoteMenuItems(fbItems);
       }
 
-      menuPushTargetsRef.current = { supabase: supabaseOk, firebase: firebaseOk };
-      setIsMenuRemoteEnabled(supabaseOk || firebaseOk);
       setIsMenuRemoteReady(true);
     })();
 
@@ -395,42 +393,9 @@ export default function App() {
     }
   }, [menu.length]);
 
-  useEffect(() => {
-    if (!isMenuRemoteReady || !isMenuRemoteEnabled) return;
-    const { supabase: pushSb, firebase: pushFb } = menuPushTargetsRef.current;
-    if (!pushSb && !pushFb) return;
-    if (menu.length === 0) return;
-
-    const pushMenuToRemote = async () => {
-      try {
-        if (pushSb) {
-          const supabase = getSupabaseClient();
-          if (supabase) {
-            await supabase.from(RESTAURANT_MENU_TABLE).upsert(
-              {
-                id: RESTAURANT_MENU_ROW_ID,
-                items: menu,
-                updated_at: new Date().toISOString(),
-              },
-              { onConflict: 'id' }
-            );
-          }
-        }
-        if (pushFb) {
-          const [{ app: firebaseApp }, { doc, getFirestore, setDoc }] = await Promise.all([
-            import('./firebase'),
-            import('firebase/firestore'),
-          ]);
-          const db = getFirestore(firebaseApp);
-          await setDoc(doc(db, 'public', 'menu'), { items: menu }, { merge: true });
-        }
-      } catch {
-        /* localStorage reste la source de secours */
-      }
-    };
-
-    void pushMenuToRemote();
-  }, [menu, isMenuRemoteReady, isMenuRemoteEnabled]);
+  // NOTE: Remote sync (push to Supabase) is now handled directly by AdminMenuPanel
+  // when the admin clicks "Save & Publish". This avoids triggering a push on every
+  // local menu change (which could cause an update loop with the realtime channel).
 
   // Utiliser le hook de commande
   const {

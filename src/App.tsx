@@ -42,7 +42,7 @@ import { Check, Clipboard, Download } from 'lucide-react';
 const WHATSAPP_NUMBER = "74503232";
 const MENU_STORAGE_KEY = 'abdoul_menu_v2';
 /** Carte — Fast Food (DR Sport) */
-const FAST_FOOD_MAPS_URL = "https://maps.app.goo.gl/iQGzFA3ZEERyUYLw7";
+const FAST_FOOD_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=DR+Sport+et+Loisir+Ouahigouya";
 /** Carte — Terrasse */
 const TERRASSE_MAPS_URL = "https://maps.app.goo.gl/S7za4H9LGYfNsAsH9";
 
@@ -1681,7 +1681,15 @@ export default function App() {
               <ShoppingBag className="w-8 h-8 text-amber-600 flex-shrink-0" />
               <div className="text-left">
                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Fast Food</p>
-                <p className="font-bold dark:text-white text-sm italic">Localisation bientôt disponible</p>
+                <p className="font-bold dark:text-white text-sm">À côté de la DR Sport et Loisir</p>
+                <a
+                  href={FAST_FOOD_MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-amber-600 dark:text-amber-500 hover:underline text-sm inline-block mt-1"
+                >
+                  Google Maps
+                </a>
               </div>
             </div>
             <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5 max-w-md">

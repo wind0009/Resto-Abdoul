@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Phone,
   MapPin,
@@ -28,6 +28,12 @@ import {
 import { MenuItem, CartItem } from './types';
 import { OrderButton } from './OrderButton';
 import { AdminMenuPanel } from './AdminMenuPanel';
+import {
+  getSupabaseClient,
+  isSupabaseMenuConfigured,
+  RESTAURANT_MENU_ROW_ID,
+  RESTAURANT_MENU_TABLE,
+} from './supabaseClient';
 import { useOrderFlow } from './useOrderFlow';
 import { OrderOptionsModal } from './OrderOptionsModal';
 import { OrderService } from './OrderService';
@@ -227,60 +233,127 @@ export default function App() {
   const [reservationSpace, setReservationSpace] = useState<'fast' | 'terrasse' | ''>('');
   const [isMenuRemoteReady, setIsMenuRemoteReady] = useState(false);
   const [isMenuRemoteEnabled, setIsMenuRemoteEnabled] = useState(false);
+  /** Cibles d’écriture indépendantes : les deux peuvent être true en même temps. */
+  const menuPushTargetsRef = useRef({ supabase: false, firebase: false });
+
+  const applyRemoteMenuItems = (remoteItems: unknown) => {
+    if (!Array.isArray(remoteItems) || remoteItems.length === 0) return;
+    setMenu((prev) => {
+      const prevJson = JSON.stringify(prev);
+      const remoteJson = JSON.stringify(remoteItems);
+      return prevJson === remoteJson ? prev : (remoteItems as MenuItem[]);
+    });
+  };
 
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+    const disposers: (() => void)[] = [];
+    menuPushTargetsRef.current = { supabase: false, firebase: false };
 
-    const initRemoteMenuSync = async () => {
-      try {
-        const hasFirebaseConfig = Boolean(
-          import.meta.env.VITE_FIREBASE_API_KEY &&
-          import.meta.env.VITE_FIREBASE_PROJECT_ID &&
-          import.meta.env.VITE_FIREBASE_APP_ID
-        );
+    void (async () => {
+      let supabaseOk = false;
+      let firebaseOk = false;
+      let sbItems: MenuItem[] | null = null;
+      let fbItems: MenuItem[] | null = null;
 
-        if (!hasFirebaseConfig) {
-          setIsMenuRemoteReady(true);
-          return;
-        }
+      const hasFirebaseConfig = Boolean(
+        import.meta.env.VITE_FIREBASE_API_KEY &&
+        import.meta.env.VITE_FIREBASE_PROJECT_ID &&
+        import.meta.env.VITE_FIREBASE_APP_ID
+      );
 
-        const [{ app: firebaseApp }, { doc, getFirestore, onSnapshot }] = await Promise.all([
-          import('./firebase'),
-          import('firebase/firestore')
-        ]);
+      // --- Supabase (base séparée) ---
+      if (isSupabaseMenuConfigured()) {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          try {
+            const { data, error } = await supabase
+              .from(RESTAURANT_MENU_TABLE)
+              .select('items')
+              .eq('id', RESTAURANT_MENU_ROW_ID)
+              .maybeSingle();
 
-        const db = getFirestore(firebaseApp);
-        const menuDocRef = doc(db, 'public', 'menu');
-
-        unsubscribe = onSnapshot(
-          menuDocRef,
-          (snapshot) => {
-            if (snapshot.exists()) {
-              const remoteItems = snapshot.data()?.items;
-              if (Array.isArray(remoteItems) && remoteItems.length > 0) {
-                setMenu((prev) => {
-                  const prevJson = JSON.stringify(prev);
-                  const remoteJson = JSON.stringify(remoteItems);
-                  return prevJson === remoteJson ? prev : (remoteItems as MenuItem[]);
-                });
-              }
+            if (!cancelled && !error && data?.items && Array.isArray(data.items) && data.items.length > 0) {
+              sbItems = data.items as MenuItem[];
             }
-            setIsMenuRemoteEnabled(true);
-            setIsMenuRemoteReady(true);
-          },
-          () => {
-            setIsMenuRemoteReady(true);
-          }
-        );
-      } catch {
-        setIsMenuRemoteReady(true);
-      }
-    };
 
-    initRemoteMenuSync();
+            const channel = supabase
+              .channel(`restaurant_menu_row_${RESTAURANT_MENU_ROW_ID}`)
+              .on(
+                'postgres_changes',
+                {
+                  event: '*',
+                  schema: 'public',
+                  table: RESTAURANT_MENU_TABLE,
+                  filter: `id=eq.${RESTAURANT_MENU_ROW_ID}`,
+                },
+                (payload) => {
+                  if (cancelled) return;
+                  const row = payload.new as { items?: unknown } | undefined;
+                  applyRemoteMenuItems(row?.items);
+                }
+              )
+              .subscribe();
+
+            disposers.push(() => {
+              void supabase.removeChannel(channel);
+            });
+            supabaseOk = true;
+          } catch {
+            supabaseOk = false;
+          }
+        }
+      }
+
+      // --- Firebase (base séparée) ---
+      if (hasFirebaseConfig && !cancelled) {
+        try {
+          const [{ app: firebaseApp }, { doc, getFirestore, getDoc, onSnapshot }] = await Promise.all([
+            import('./firebase'),
+            import('firebase/firestore'),
+          ]);
+
+          const db = getFirestore(firebaseApp);
+          const menuDocRef = doc(db, 'public', 'menu');
+          const snap = await getDoc(menuDocRef);
+
+          if (!cancelled && snap.exists()) {
+            const remoteItems = snap.data()?.items;
+            if (Array.isArray(remoteItems) && remoteItems.length > 0) {
+              fbItems = remoteItems as MenuItem[];
+            }
+          }
+
+          const unsub = onSnapshot(menuDocRef, (snapshot) => {
+            if (cancelled) return;
+            if (snapshot.exists()) {
+              applyRemoteMenuItems(snapshot.data()?.items);
+            }
+          });
+          disposers.push(unsub);
+          firebaseOk = true;
+        } catch {
+          firebaseOk = false;
+        }
+      }
+
+      if (cancelled) return;
+
+      // Premier rendu : priorité Supabase si les deux ont des données (ex. Netlify), sinon Firebase, sinon localStorage
+      if (sbItems?.length) {
+        applyRemoteMenuItems(sbItems);
+      } else if (fbItems?.length) {
+        applyRemoteMenuItems(fbItems);
+      }
+
+      menuPushTargetsRef.current = { supabase: supabaseOk, firebase: firebaseOk };
+      setIsMenuRemoteEnabled(supabaseOk || firebaseOk);
+      setIsMenuRemoteReady(true);
+    })();
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      cancelled = true;
+      disposers.forEach((d) => d());
     };
   }, []);
 
@@ -290,22 +363,38 @@ export default function App() {
 
   useEffect(() => {
     if (!isMenuRemoteReady || !isMenuRemoteEnabled) return;
+    const { supabase: pushSb, firebase: pushFb } = menuPushTargetsRef.current;
+    if (!pushSb && !pushFb) return;
 
     const pushMenuToRemote = async () => {
       try {
-        const [{ app: firebaseApp }, { doc, getFirestore, setDoc }] = await Promise.all([
-          import('./firebase'),
-          import('firebase/firestore')
-        ]);
-        const db = getFirestore(firebaseApp);
-        const menuDocRef = doc(db, 'public', 'menu');
-        await setDoc(menuDocRef, { items: menu }, { merge: true });
+        if (pushSb) {
+          const supabase = getSupabaseClient();
+          if (supabase) {
+            await supabase.from(RESTAURANT_MENU_TABLE).upsert(
+              {
+                id: RESTAURANT_MENU_ROW_ID,
+                items: menu,
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: 'id' }
+            );
+          }
+        }
+        if (pushFb) {
+          const [{ app: firebaseApp }, { doc, getFirestore, setDoc }] = await Promise.all([
+            import('./firebase'),
+            import('firebase/firestore'),
+          ]);
+          const db = getFirestore(firebaseApp);
+          await setDoc(doc(db, 'public', 'menu'), { items: menu }, { merge: true });
+        }
       } catch {
-        // Keep localStorage as fallback when Firestore sync fails.
+        /* localStorage reste la source de secours */
       }
     };
 
-    pushMenuToRemote();
+    void pushMenuToRemote();
   }, [menu, isMenuRemoteReady, isMenuRemoteEnabled]);
 
   // Utiliser le hook de commande

@@ -284,12 +284,32 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
                 >
                   <option value="">Sélectionner un créneau</option>
                   <option value="maintenant">Dès que possible (Maintenant)</option>
-                  <option value="16h-18h">16h00 - 18h00</option>
-                  <option value="18h-20h">18h00 - 20h00</option>
-                  <option value="20h-22h">20h00 - 22h00</option>
-                  <option value="22h-00h">22h00 - 00h00</option>
-                  <option value="00h-02h">00h00 - 02h00</option>
-                  <option value="02h-05h">02h00 - 05h00</option>
+                  <option value="16:00">16h00 - 16h30</option>
+                  <option value="16:30">16h30 - 17h00</option>
+                  <option value="17:00">17h00 - 17h30</option>
+                  <option value="17:30">17h30 - 18h00</option>
+                  <option value="18:00">18h00 - 18h30</option>
+                  <option value="18:30">18h30 - 19h00</option>
+                  <option value="19:00">19h00 - 19h30</option>
+                  <option value="19:30">19h30 - 20h00</option>
+                  <option value="20:00">20h00 - 20h30</option>
+                  <option value="20:30">20h30 - 21h00</option>
+                  <option value="21:00">21h00 - 21h30</option>
+                  <option value="21:30">21h30 - 22h00</option>
+                  <option value="22:00">22h00 - 22h30</option>
+                  <option value="22:30">22h30 - 23h00</option>
+                  <option value="23:00">23h00 - 23h30</option>
+                  <option value="23:30">23h30 - 00h00</option>
+                  <option value="00:00">00h00 - 00h30</option>
+                  <option value="00:30">00h30 - 01h00</option>
+                  <option value="01:00">01h00 - 01h30</option>
+                  <option value="01:30">01h30 - 02h00</option>
+                  <option value="02:00">02h00 - 02h30</option>
+                  <option value="02:30">02h30 - 03h00</option>
+                  <option value="03:00">03h00 - 03h30</option>
+                  <option value="03:30">03h30 - 04h00</option>
+                  <option value="04:00">04h00 - 04h30</option>
+                  <option value="04:30">04h30 - 05h00</option>
                 </select>
               </div>
 

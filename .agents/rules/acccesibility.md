@@ -1,6 +1,6 @@
 ---
 trigger: always_on
-glob:
-description:
 ---
 
+All animations should respect preferrred-reduced-motion
+for accessibility

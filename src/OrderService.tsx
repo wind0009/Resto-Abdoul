@@ -62,7 +62,15 @@ export class OrderService {
       const grandTotal = order.total + order.commission + deliveryFee;
 
       // Message restaurant - SANS mention de commission, uniquement commande et capture
-      let restaurantMessage = "⚡ NOUVELLE COMMANDE ⚡\n\n" + orderType + "\n👤 Client: " + order.name + "\n📞 Tel: " + order.phone;
+      let restaurantMessage =
+        "⚡ NOUVELLE COMMANDE ⚡\n\n" +
+        orderType +
+        "\n🏷️ Espace: " +
+        order.experienceSpace +
+        "\n👤 Client: " +
+        order.name +
+        "\n📞 Tel: " +
+        order.phone;
 
       if (order.address) {
         restaurantMessage += "\n📍 " + order.address;

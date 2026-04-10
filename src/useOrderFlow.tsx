@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { CartItem, OrderData } from './types';
+import { CartItem, OrderData, ExperienceSpace } from './types';
 import { OrderService } from './OrderService';
 
 export const useOrderFlow = (cart: CartItem[], setCart: React.Dispatch<React.SetStateAction<CartItem[]>>) => {
@@ -16,9 +16,29 @@ export const useOrderFlow = (cart: CartItem[], setCart: React.Dispatch<React.Set
     setShowOptionsModal(true);
   }, [cart]);
 
-  const handleOrderComplete = async (mode: string, time?: string, address?: string, name?: string, phone?: string) => {
+  const handleOrderComplete = async (
+    mode: string,
+    time?: string,
+    address?: string,
+    name?: string,
+    phone?: string,
+    experienceSpace?: ExperienceSpace
+  ) => {
     if (!name || !phone) {
       alert('Informations incomplètes. Veuillez remplir votre nom et numéro de téléphone.');
+      return;
+    }
+    if (!experienceSpace) {
+      alert('Veuillez choisir l\'espace : Fast Food ou Terrasse.');
+      return;
+    }
+
+    const expectedCategory = experienceSpace === 'Fast Food' ? 'Fast Food' : 'Terrasse';
+    const wrongItems = cart.filter((i) => i.category !== expectedCategory);
+    if (wrongItems.length > 0) {
+      alert(
+        'Votre panier ne correspond pas à l\'espace choisi. Ajoutez uniquement des plats du menu Fast Food ou uniquement du menu Terrasse, selon votre choix.'
+      );
       return;
     }
 
@@ -46,7 +66,8 @@ export const useOrderFlow = (cart: CartItem[], setCart: React.Dispatch<React.Set
         total,
         restaurantPrice,
         commission,
-        grandTotal
+        grandTotal,
+        experienceSpace,
       };
 
       // On ne lance pas WhatsApp ici, on passe au paiement

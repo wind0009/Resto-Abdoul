@@ -18,32 +18,29 @@ import {
   ArrowRight,
   Heart,
   Quote,
-  Navigation,
   ExternalLink,
-  Loader2,
   Sun,
   Moon,
-  Settings,
-  Edit2,
-  Save,
-  PlusCircle,
-  Image as ImageIcon,
   Camera,
-  Smartphone
+  Smartphone,
+  Trees
 } from 'lucide-react';
 import { MenuItem, CartItem } from './types';
-import { GoogleGenAI } from "@google/genai";
 import { OrderButton } from './OrderButton';
+import { AdminMenuPanel } from './AdminMenuPanel';
 import { useOrderFlow } from './useOrderFlow';
 import { OrderOptionsModal } from './OrderOptionsModal';
 import { OrderService } from './OrderService';
 import { Check, Clipboard, Download } from 'lucide-react';
 
 const WHATSAPP_NUMBER = "74503232";
-const ADMIN_PHONE = "74503232";
-const RESTAURANT_MAPS_URL = "https://maps.app.goo.gl/iQGzFA3ZEERyUYLw7";
+const MENU_STORAGE_KEY = 'abdoul_menu_v2';
+/** Carte — Fast Food (DR Sport) */
+const FAST_FOOD_MAPS_URL = "https://maps.app.goo.gl/iQGzFA3ZEERyUYLw7";
+/** Carte — Terrasse */
+const TERRASSE_MAPS_URL = "https://maps.app.goo.gl/S7za4H9LGYfNsAsH9";
 
-const MENU_DATA: MenuItem[] = [
+const INITIAL_MENU_DATA: MenuItem[] = [
   {
     id: 'ff1',
     category: 'Fast Food',
@@ -74,6 +71,15 @@ const MENU_DATA: MenuItem[] = [
   {
     id: 'ff4',
     category: 'Fast Food',
+    name: 'Poulet Pané - Maxi',
+    price: 2500,
+    priceString: '2,500 FCFA',
+    description: 'Portion généreuse de poulet pané avec frites et sauces.',
+    image: '/poulet pané.png'
+  },
+  {
+    id: 'ff5',
+    category: 'Fast Food',
     name: 'Poulet Pané - Entier',
     price: 5000,
     priceString: '5,000 FCFA',
@@ -81,7 +87,7 @@ const MENU_DATA: MenuItem[] = [
     image: '/poulet pané.png'
   },
   {
-    id: 'ff5',
+    id: 'ff6',
     category: 'Fast Food',
     name: 'Chawarma - Simple',
     price: 1500,
@@ -90,7 +96,7 @@ const MENU_DATA: MenuItem[] = [
     image: '/charwarma.png'
   },
   {
-    id: 'ff6',
+    id: 'ff7',
     category: 'Fast Food',
     name: 'Chawarma - Complet',
     price: 2000,
@@ -99,7 +105,7 @@ const MENU_DATA: MenuItem[] = [
     image: '/charwarma.png'
   },
   {
-    id: 'ff7',
+    id: 'ff8',
     category: 'Fast Food',
     name: 'Pain Anglais',
     price: 1000,
@@ -108,7 +114,7 @@ const MENU_DATA: MenuItem[] = [
     image: '/pain anglais.png'
   },
   {
-    id: 'ff8',
+    id: 'ff9',
     category: 'Fast Food',
     name: 'Frites',
     price: 1000,
@@ -117,7 +123,7 @@ const MENU_DATA: MenuItem[] = [
     image: '/frites.png'
   },
   {
-    id: 'ff9',
+    id: 'ff10',
     category: 'Fast Food',
     name: 'Saucisse',
     price: 500,
@@ -126,13 +132,67 @@ const MENU_DATA: MenuItem[] = [
     image: '/saucisse.png'
   },
   {
-    id: 'ff10',
+    id: 'ff11',
     category: 'Fast Food',
-    name: 'Merguez (2 pièces)',
+    name: 'Merguez — 2 pour 500 FCFA',
     price: 500,
     priceString: '500 FCFA',
     description: 'Deux merguez épicées grillées, servies avec harissa.',
     image: '/mergez.png'
+  },
+  {
+    id: 'ff12',
+    category: 'Fast Food',
+    name: 'Poulet à l\'ail',
+    price: 5000,
+    priceString: '5,000 FCFA',
+    description: 'Poulet mariné à l\'ail, grillé et servi avec accompagnements.',
+    image: '/poulet-pane.png'
+  },
+  {
+    id: 't1',
+    category: 'Terrasse',
+    name: 'Poulet braisé assaisonné',
+    price: 5000,
+    priceString: '5,000 FCFA',
+    description: 'Poulet braisé aux épices maison, juteux et parfumé.',
+    image: '/Poulet braisé assaisonné.png'
+  },
+  {
+    id: 't2',
+    category: 'Terrasse',
+    name: 'Frites',
+    price: 1000,
+    priceString: '1,000 FCFA',
+    description: 'Frites maison croustillantes.',
+    image: '/frites.png'
+  },
+  {
+    id: 't3',
+    category: 'Terrasse',
+    name: 'Poulet au couscous',
+    price: 6000,
+    priceString: '6,000 FCFA',
+    description: 'Couscous traditionnel au poulet braisé.',
+    image: '/Poulet au couscous.png'
+  },
+  {
+    id: 't4',
+    category: 'Terrasse',
+    name: 'Poisson assaisonné + attiéké (portion standard)',
+    price: 3500,
+    priceString: '3,500 FCFA',
+    description: 'Poisson assaisonné servi avec attiéké.',
+    image: '/Poisson assaisonné + attiéké.png'
+  },
+  {
+    id: 't5',
+    category: 'Terrasse',
+    name: 'Poisson assaisonné + attiéké (portion grande)',
+    price: 4000,
+    priceString: '4,000 FCFA',
+    description: 'Grande portion de poisson assaisonné avec attiéké.',
+    image: '/Poisson assaisonné + attiéké.png'
   },
 ];
 
@@ -141,143 +201,21 @@ const REVIEWS = [
   { name: "Alice Durand", comment: "Une pépite au centre-ville. Le cadre est magnifique et la carte est très variée.", rating: 5 },
 ];
 
-const LocationFinder = () => {
-  const [loading, setLoading] = useState(false);
-  const [locationData, setLocationData] = useState<{ text: string, links: any[] } | null>(null);
-
-  const findRestaurant = async () => {
-    setLoading(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      let lat = 12.3714;
-      let lng = -1.5197;
-
-      try {
-        const pos = await new Promise<GeolocationPosition>((res, rej) => navigator.geolocation.getCurrentPosition(res, rej));
-        lat = pos.coords.latitude;
-        lng = pos.coords.longitude;
-      } catch (e) { console.log("Geolocation denied"); }
-
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: "Où se trouve précisément le Resto Abdoul à Ouahigouya ? Indique qu'il est au centre-ville et comment y accéder.",
-        config: {
-          tools: [{ googleMaps: {} }],
-          toolConfig: {
-            retrievalConfig: { latLng: { latitude: lat, longitude: lng } }
-          }
-        },
-      });
-
-      const rawChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-      const links = [
-        { maps: { uri: RESTAURANT_MAPS_URL, title: "Ouvrir Google Maps" } },
-        ...rawChunks.filter((c: any) => c.maps?.uri && c.maps.uri !== RESTAURANT_MAPS_URL),
-      ];
-      setLocationData({ text: response.text || "Le restaurant est situé au centre-ville, Ouahigouya.", links });
-    } catch (error) {
-      setLocationData({
-        text: "Le Resto Abdoul vous accueille au centre-ville, à Ouahigouya.",
-        links: [{ maps: { uri: RESTAURANT_MAPS_URL, title: "Ouvrir Google Maps" } }]
-      });
-    } finally {
-      setLoading(false);
+function loadMenuFromStorage(): MenuItem[] {
+  try {
+    const v2 = localStorage.getItem(MENU_STORAGE_KEY);
+    if (v2) {
+      const parsed = JSON.parse(v2) as MenuItem[];
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-  };
-
-  return (
-    <div className="card-themed rounded-[3rem] p-10 lg:p-16 space-y-10">
-      <div className="flex items-center gap-6">
-        <div className="w-16 h-16 bg-amber-600 flex items-center justify-center rounded-2xl shadow-lg shadow-amber-600/30">
-          <MapPin className="w-8 h-8 text-white" />
-        </div>
-        <div>
-          <h3 className="text-3xl font-black tracking-tighter dark:text-white">Nous Trouver</h3>
-          <p className="text-stone-600 dark:text-stone-400 text-sm">Chez Abdoul Fast Food - À côté de la DR Sport et Loisir</p>
-        </div>
-      </div>
-
-      <div className="min-h-[100px] flex flex-col justify-center">
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-          <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
-            Retrouvez-nous à Ouahigouya, centre-ville, juste à côté de la DR Sport et Loisir pour vos commandes rapides à emporter.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <a
-              href={RESTAURANT_MAPS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-stone-100 dark:bg-white/10 hover:bg-amber-600 hover:text-white text-stone-900 dark:text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
-            >
-              <ExternalLink className="w-4 h-4" /> Ouvrir Google Maps
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <a
-        href={RESTAURANT_MAPS_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full bg-stone-900 dark:bg-amber-600 hover:bg-amber-600 dark:hover:bg-amber-500 text-white py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center gap-4 shadow-xl"
-      >
-        <Navigation className="w-5 h-5" /> Obtenir l'itinéraire
-      </a>
-    </div>
-  );
-};
-
-const SimpleAdminPanel = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  const [pass, setPass] = useState('');
-  const [isAuthed, setIsAuthed] = useState(false);
-
-  if (!isOpen) return null;
-
-  const handleLogin = () => {
-    if (pass === ADMIN_PHONE) {
-      setIsAuthed(true);
-      alert('Connecté en mode admin');
-    } else {
-      alert('Code incorrect');
+    const legacy = localStorage.getItem('abdoul_menu');
+    if (legacy) {
+      const parsed = JSON.parse(legacy) as MenuItem[];
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-  };
-
-  if (!isAuthed) {
-    return (
-      <div className="fixed inset-0 z-[130] flex items-center justify-center p-6">
-        <div className="absolute inset-0 bg-stone-900/90 backdrop-blur-md" onClick={onClose}></div>
-        <div className="relative bg-white dark:bg-stone-900 w-full max-w-sm rounded-[2rem] p-8 space-y-6 animate-in zoom-in-95">
-          <div className="text-center space-y-3">
-            <Settings className="w-12 h-12 text-amber-600 mx-auto" />
-            <h3 className="text-xl font-bold tracking-tight dark:text-white">Admin</h3>
-          </div>
-          <input
-            type="password"
-            placeholder="Code admin"
-            value={pass}
-            onChange={e => setPass(e.target.value)}
-            className="w-full bg-stone-50 dark:bg-stone-950 border-none p-4 rounded-xl font-medium focus:ring-2 ring-amber-600 outline-none"
-          />
-          <button onClick={handleLogin} className="w-full bg-amber-600 text-white py-3 rounded-xl font-bold text-sm">Connexion</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 z-[130] flex items-center justify-center p-6">
-      <div className="absolute inset-0 bg-stone-900/90 backdrop-blur-md" onClick={onClose}></div>
-      <div className="relative bg-white dark:bg-stone-900 w-full max-w-sm rounded-[2rem] p-8 space-y-6 animate-in zoom-in-95">
-        <div className="text-center space-y-3">
-          <Check className="w-12 h-12 text-green-600 mx-auto" />
-          <h3 className="text-xl font-bold tracking-tight dark:text-white">Admin Connecté</h3>
-        </div>
-        <p className="text-center text-stone-600 dark:text-stone-400 text-sm">Mode administrateur activé</p>
-        <button onClick={onClose} className="w-full bg-stone-600 text-white py-3 rounded-xl font-bold text-sm">Fermer</button>
-      </div>
-    </div>
-  );
-};
+  } catch { /* ignore */ }
+  return INITIAL_MENU_DATA;
+}
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
@@ -285,10 +223,8 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [menu, setMenu] = useState<MenuItem[]>(() => {
-    const saved = localStorage.getItem('abdoul_menu');
-    return saved ? JSON.parse(saved) : MENU_DATA;
-  });
+  const [menu, setMenu] = useState<MenuItem[]>(loadMenuFromStorage);
+  const [reservationSpace, setReservationSpace] = useState<'fast' | 'terrasse' | ''>('');
   const [isMenuRemoteReady, setIsMenuRemoteReady] = useState(false);
   const [isMenuRemoteEnabled, setIsMenuRemoteEnabled] = useState(false);
 
@@ -349,7 +285,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('abdoul_menu', JSON.stringify(menu));
+    localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(menu));
   }, [menu]);
 
   useEffect(() => {
@@ -530,6 +466,38 @@ export default function App() {
     ).filter(item => item.quantity > 0));
   };
 
+  const menuFastFood = menu.filter((m) => m.category === 'Fast Food');
+  const menuTerrasse = menu.filter((m) => m.category === 'Terrasse');
+
+  const renderMenuCards = (items: MenuItem[]) =>
+    items.map((item) => (
+      <div
+        key={item.id}
+        className="group relative bg-stone-50 dark:bg-stone-950 p-6 rounded-[2rem] flex flex-col gap-6 border border-transparent hover:border-amber-600/30 transition-all hover:shadow-xl"
+      >
+        <div className="w-full h-48 overflow-hidden rounded-[1.5rem] shadow-xl">
+          <img
+            src={item.image}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            alt={item.name}
+          />
+        </div>
+        <div className="flex-1 space-y-4">
+          <div className="flex justify-between items-start gap-4">
+            <h4 className="text-xl font-black tracking-tight dark:text-white">{item.name}</h4>
+            <span className="text-amber-600 font-black text-lg whitespace-nowrap">{item.priceString}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => addToCart(item)}
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-black uppercase tracking-[0.2em] text-xs transition-all"
+          >
+            Ajouter au panier
+          </button>
+        </div>
+      </div>
+    ));
+
   return (
     <div className="min-h-screen transition-colors duration-500">
       <div className="fixed inset-0 grainy-bg pointer-events-none z-[90]"></div>
@@ -547,9 +515,14 @@ export default function App() {
             </div>
 
             <div className="hidden lg:flex items-center gap-12">
-              {['accueil', 'menu', 'reservation', 'contact'].map(link => (
-                <a key={link} href={`#${link}`} className={`relative text-[11px] font-black uppercase tracking-[0.6em] transition-all duration-300 hover:text-amber-400 ${scrolled ? 'text-white/90' : 'text-white/80'} group`}>
-                  {link}
+              {[
+                { id: 'accueil', label: 'accueil' },
+                { id: 'menu-fast-food', label: 'menu' },
+                { id: 'reservation', label: 'reservation' },
+                { id: 'contact', label: 'contact' },
+              ].map(({ id, label }) => (
+                <a key={id} href={`#${id}`} className={`relative text-[11px] font-black uppercase tracking-[0.6em] transition-all duration-300 hover:text-amber-400 ${scrolled ? 'text-white/90' : 'text-white/80'} group`}>
+                  {label}
                   <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-400 to-amber-600 transition-all duration-300 group-hover:w-full"></span>
                 </a>
               ))}
@@ -583,10 +556,10 @@ export default function App() {
         <div className="absolute inset-0 z-0">
           <img
             src="/restaurant-photo.png"
-            className="w-full h-full object-cover brightness-[0.3] lg:brightness-[0.5]"
+            className="w-full h-full object-cover brightness-[0.52] contrast-[1.12] saturate-[1.28] lg:brightness-[0.62] lg:contrast-[1.1] lg:saturate-[1.22]"
             alt="Chez Abdoul Restaurant"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-stone-950/78 via-stone-950/45 to-stone-950/20" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto w-full text-white">
@@ -603,10 +576,53 @@ export default function App() {
         </div>
       </section>
 
+      {/* Choix d'expérience */}
+      <section
+        id="choix-experience"
+        className="py-16 md:py-24 bg-stone-50 dark:bg-stone-950 transition-colors border-y border-stone-200/80 dark:border-white/5"
+      >
+        <div className="max-w-7xl mx-auto px-6 space-y-10 md:space-y-14">
+          <h2 className="text-center text-3xl md:text-5xl font-black tracking-tighter dark:text-white">
+            Choisissez votre expérience Chez Abdoul
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+            <a
+              href="#menu-fast-food"
+              className="group card-themed rounded-[2.5rem] p-8 md:p-10 flex flex-col gap-6 border border-stone-200/80 dark:border-white/10 transition-all duration-300 hover:shadow-2xl hover:scale-[1.01]"
+            >
+              <div className="w-16 h-16 bg-amber-600 flex items-center justify-center rounded-2xl shadow-lg shadow-amber-600/30 group-hover:scale-105 transition-transform">
+                <ShoppingBag className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight dark:text-white uppercase">Fast Food</h3>
+                <p className="text-stone-600 dark:text-stone-400 mt-2 leading-relaxed">Commande rapide, à emporter</p>
+              </div>
+              <span className="inline-flex items-center gap-2 text-amber-600 font-black uppercase tracking-widest text-xs">
+                Voir le menu <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </a>
+            <a
+              href="#menu-terrasse"
+              className="group card-themed rounded-[2.5rem] p-8 md:p-10 flex flex-col gap-6 border border-stone-200/80 dark:border-white/10 transition-all duration-300 hover:shadow-2xl hover:scale-[1.01]"
+            >
+              <div className="w-16 h-16 bg-stone-900 dark:bg-amber-600 flex items-center justify-center rounded-2xl shadow-lg group-hover:scale-105 transition-transform">
+                <Trees className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight dark:text-white uppercase">Terrasse</h3>
+                <p className="text-stone-600 dark:text-stone-400 mt-2 leading-relaxed">Ambiance cosy, repas sur place</p>
+              </div>
+              <span className="inline-flex items-center gap-2 text-amber-600 font-black uppercase tracking-widest text-xs">
+                Voir le menu <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* Features & Location */}
       <section className="py-32 bg-stone-50 dark:bg-stone-950 transition-colors">
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-24 items-center">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-24 items-start">
           <div className="space-y-12">
             <div className="space-y-6">
               <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Notre Signature</span>
@@ -628,39 +644,92 @@ export default function App() {
               </div>
             </div>
           </div>
-          <LocationFinder />
+          <div className="space-y-10">
+            <div className="card-themed rounded-[3rem] p-10 lg:p-12 space-y-8">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-amber-600 flex items-center justify-center rounded-2xl shadow-lg shadow-amber-600/30">
+                  <ShoppingBag className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-black tracking-tighter dark:text-white">Fast Food</h3>
+                  <p className="text-stone-600 dark:text-stone-400 text-sm">Commande rapide, à emporter</p>
+                </div>
+              </div>
+              <p className="text-stone-600 dark:text-stone-300 leading-relaxed flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <span>Adresse : à côté de la DR Sport et Loisir, Ouahigouya.</span>
+              </p>
+              <a
+                href={FAST_FOOD_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-stone-900 dark:bg-amber-600 hover:bg-amber-600 dark:hover:bg-amber-500 text-white py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center gap-4 shadow-xl"
+              >
+                <ExternalLink className="w-5 h-5" /> Google Maps — Fast Food
+              </a>
+            </div>
+            <div className="card-themed rounded-[3rem] p-10 lg:p-12 space-y-8">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-stone-900 dark:bg-amber-600 flex items-center justify-center rounded-2xl shadow-lg">
+                  <Trees className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-black tracking-tighter dark:text-white">Terrasse</h3>
+                  <p className="text-stone-600 dark:text-stone-400 text-sm">Espace cosy pour manger et se détendre</p>
+                </div>
+              </div>
+              <p className="text-stone-600 dark:text-stone-300 leading-relaxed flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <span>À 100 m du maquis Capsule, sous Résidence GUIBRIL.</span>
+              </p>
+              <div className="rounded-2xl overflow-hidden border border-stone-200 dark:border-white/10 aspect-video bg-stone-200 dark:bg-stone-800">
+                <iframe
+                  title="Carte Terrasse Chez Abdoul"
+                  src="https://www.google.com/maps?q=Ouahigouya+Burkina+Faso&output=embed"
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+              <a
+                href={TERRASSE_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-stone-100 dark:bg-white/10 hover:bg-amber-600 hover:text-white text-stone-900 dark:text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all w-full justify-center"
+              >
+                <ExternalLink className="w-4 h-4" /> Ouvrir l&apos;emplacement exact (Google Maps)
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Menu Section */}
-      <section id="menu" className="py-32 bg-white dark:bg-stone-900 transition-colors">
+      {/* Menu Fast Food */}
+      <section id="menu-fast-food" className="py-32 bg-white dark:bg-stone-900 transition-colors scroll-mt-24">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-24 space-y-4">
-            <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Fast Food</span>
-            <h2 className="text-6xl md:text-8xl font-black tracking-tighter dark:text-white">Notre Menu</h2>
+            <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">À emporter</span>
+            <h2 className="text-5xl md:text-8xl font-black tracking-tighter dark:text-white">Menu Fast Food</h2>
+            <p className="text-stone-500 dark:text-stone-400 max-w-xl mx-auto text-sm">
+              Commandes rapides — carte fast food uniquement (distincte de la terrasse).
+            </p>
           </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">{renderMenuCards(menuFastFood)}</div>
+        </div>
+      </section>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {MENU_DATA.map((item) => (
-              <div key={item.id} className="group relative bg-stone-50 dark:bg-stone-950 p-6 rounded-[2rem] flex flex-col gap-6 border border-transparent hover:border-amber-600/30 transition-all">
-                <div className="w-full h-48 overflow-hidden rounded-[1.5rem] shadow-xl">
-                  <img src={item.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={item.name} />
-                </div>
-                <div className="flex-1 space-y-4">
-                  <div className="flex justify-between items-start gap-4">
-                    <h4 className="text-xl font-black tracking-tight dark:text-white">{item.name}</h4>
-                    <span className="text-amber-600 font-black text-lg">{item.priceString}</span>
-                  </div>
-                  <button 
-                    onClick={() => addToCart(item)}
-                    className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl font-black uppercase tracking-[0.2em] text-xs transition-all"
-                  >
-                    Ajouter au panier
-                  </button>
-                </div>
-              </div>
-            ))}
+      {/* Menu Terrasse */}
+      <section id="menu-terrasse" className="py-32 bg-stone-50 dark:bg-stone-950 transition-colors scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-24 space-y-4">
+            <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Sur place</span>
+            <h2 className="text-5xl md:text-8xl font-black tracking-tighter dark:text-white">Menu Terrasse</h2>
+            <p className="text-stone-500 dark:text-stone-400 max-w-xl mx-auto text-sm">
+              Plats terrasse — carte distincte du fast food.
+            </p>
           </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">{renderMenuCards(menuTerrasse)}</div>
         </div>
       </section>
 
@@ -1071,8 +1140,13 @@ export default function App() {
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest">Mode</p>
-                      <p className="font-bold text-amber-600">{OrderService.getOrderType(completedOrder.mode).orderType.split(' ')[1]}</p>
+                      <p className="font-bold text-amber-600">{OrderService.getOrderType(completedOrder.mode).orderType}</p>
                     </div>
+                  </div>
+
+                  <div className="border-b border-stone-200 dark:border-white/10 pb-4">
+                    <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest">Espace choisi</p>
+                    <p className="font-bold text-amber-600 dark:text-white">{completedOrder.experienceSpace}</p>
                   </div>
 
                   <div className="space-y-2">
@@ -1140,6 +1214,8 @@ export default function App() {
                           ctx.fillText(`Client: ${completedOrder.name}`, 60, y);
                           y += 35;
                           ctx.fillText(`Tél: ${completedOrder.phone}`, 60, y);
+                          y += 35;
+                          ctx.fillText(`Espace: ${completedOrder.experienceSpace}`, 60, y);
                           y += 35;
                           ctx.fillText(`Mode: ${orderType}`, 60, y);
                           if (completedOrder.address) {
@@ -1451,11 +1527,44 @@ export default function App() {
           <div className="space-y-4 mb-16">
             <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Votre Table</span>
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter dark:text-white">Réserver</h2>
-            <p className="text-stone-500 max-w-2xl mx-auto">Contactez-nous directement sur WhatsApp pour réserver votre table dans notre espace VIP ou en terrasse.</p>
+            <p className="text-stone-500 max-w-2xl mx-auto">Choisissez l&apos;espace puis envoyez votre demande sur WhatsApp.</p>
           </div>
-          <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-4 bg-amber-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-xl">
+          <div className="max-w-md mx-auto space-y-6 text-left mb-10">
+            <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 text-center">Choisir l&apos;espace (obligatoire)</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setReservationSpace('fast')}
+                className={`p-6 rounded-2xl border-2 font-black uppercase text-xs tracking-widest transition-all ${reservationSpace === 'fast' ? 'border-amber-600 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200' : 'border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:border-amber-400'}`}
+              >
+                Fast Food
+              </button>
+              <button
+                type="button"
+                onClick={() => setReservationSpace('terrasse')}
+                className={`p-6 rounded-2xl border-2 font-black uppercase text-xs tracking-widest transition-all ${reservationSpace === 'terrasse' ? 'border-amber-600 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200' : 'border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:border-amber-400'}`}
+              >
+                Terrasse
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (!reservationSpace) {
+                alert('Veuillez choisir un espace (Fast Food ou Terrasse) avant de réserver.');
+                return;
+              }
+              const label = reservationSpace === 'fast' ? 'Fast Food' : 'Terrasse';
+              const msg = encodeURIComponent(
+                `Bonjour, je souhaite réserver une table.\nEspace : ${label}\n(Merci de préciser la date, l'heure et le nombre de personnes.)`
+              );
+              window.open(`https://wa.me/226${WHATSAPP_NUMBER}?text=${msg}`, '_blank', 'noopener,noreferrer');
+            }}
+            className="inline-flex items-center gap-4 bg-amber-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-xl"
+          >
             <Send className="w-5 h-5" /> Réserver sur WhatsApp
-          </a>
+          </button>
         </div>
       </section>
 
@@ -1466,7 +1575,7 @@ export default function App() {
             <span className="text-amber-600 font-black uppercase tracking-[0.5em] text-[10px]">Restons en contact</span>
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter dark:text-white">Contact</h2>
           </div>
-          <div className="flex flex-col sm:flex-row justify-center gap-8">
+          <div className="flex flex-col lg:flex-row justify-center gap-8 flex-wrap">
             <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5">
               <Phone className="w-8 h-8 text-amber-600" />
               <div className="text-left">
@@ -1474,17 +1583,33 @@ export default function App() {
                 <p className="font-bold dark:text-white">+226 74503232</p>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5">
-              <MapPin className="w-8 h-8 text-amber-600" />
+            <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5 max-w-md">
+              <ShoppingBag className="w-8 h-8 text-amber-600 flex-shrink-0" />
               <div className="text-left">
-                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Adresse</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Fast Food</p>
+                <p className="font-bold dark:text-white text-sm">À côté de la DR Sport et Loisir</p>
                 <a
-                  href={RESTAURANT_MAPS_URL}
+                  href={FAST_FOOD_MAPS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold dark:text-white text-amber-600 dark:text-amber-500 hover:underline"
+                  className="font-bold text-amber-600 dark:text-amber-500 hover:underline text-sm inline-block mt-1"
                 >
-                  Google Maps — Resto Abdoul
+                  Google Maps
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5 max-w-md">
+              <Trees className="w-8 h-8 text-amber-600 flex-shrink-0" />
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Terrasse</p>
+                <p className="font-bold dark:text-white text-sm">100 m du maquis Capsule, Résidence GUIBRIL</p>
+                <a
+                  href={TERRASSE_MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-amber-600 dark:text-amber-500 hover:underline text-sm inline-block mt-1"
+                >
+                  Google Maps
                 </a>
               </div>
             </div>
@@ -1516,10 +1641,11 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Simple Admin Panel */}
-      <SimpleAdminPanel
+      <AdminMenuPanel
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
+        menu={menu}
+        setMenu={setMenu}
       />
     </div>
   );

@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { X, MapPin, Clock, Check } from 'lucide-react';
-import { CartItem } from './types';
+import type { ExperienceSpace } from './types';
 
 interface OrderOptionsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectMode: (mode: string, time?: string, address?: string, name?: string, phone?: string) => void;
+  onSelectMode: (
+    mode: string,
+    time?: string,
+    address?: string,
+    name?: string,
+    phone?: string,
+    experienceSpace?: ExperienceSpace
+  ) => void;
   cartTotal: number;
 }
 
@@ -21,6 +28,7 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
   const [name, setName] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [experienceSpace, setExperienceSpace] = useState<ExperienceSpace | ''>('');
 
   // Fonction pour obtenir la localisation GPS
   const getCurrentLocation = () => {
@@ -67,6 +75,10 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
 
   const handleValidate = () => {
     // Vérifier les champs de base
+    if (!experienceSpace) {
+      alert('Veuillez choisir l\'espace : Fast Food ou Terrasse.');
+      return;
+    }
     if (!mode || !name || !phone) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
@@ -92,8 +104,7 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
     }
     // Mode '3' (sur place) ne nécessite pas de temps spécifique
 
-    console.log('Validation OK:', { mode, time, address, name, phone });
-    onSelectMode(mode, time, address, name, phone);
+    onSelectMode(mode, time, address, name, phone, experienceSpace as ExperienceSpace);
   };
 
   if (!isOpen) return null;
@@ -131,6 +142,38 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
         </div>
 
         <div className="flex-1 p-5 md:p-6 space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-stone-300 dark:scrollbar-thumb-stone-700 scrollbar-track-transparent">
+          <div>
+            <label className="block text-sm font-bold text-gray-900 mb-3">Choisir l&apos;espace (obligatoire)</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setExperienceSpace('Fast Food')}
+                className={`p-4 rounded-2xl border-2 text-left font-bold text-sm transition-all ${experienceSpace === 'Fast Food' ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-gray-200 hover:border-amber-200'}`}
+              >
+                Fast Food
+                <span className="block text-xs font-normal text-gray-600 mt-1">Commande rapide, à emporter</span>
+                {experienceSpace === 'Fast Food' && (
+                  <span className="mt-2 inline-flex items-center text-amber-600 text-xs font-bold">
+                    <Check className="w-3 h-3 mr-1" /> Sélectionné
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setExperienceSpace('Terrasse')}
+                className={`p-4 rounded-2xl border-2 text-left font-bold text-sm transition-all ${experienceSpace === 'Terrasse' ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-gray-200 hover:border-amber-200'}`}
+              >
+                Terrasse
+                <span className="block text-xs font-normal text-gray-600 mt-1">Repas sur place, ambiance cosy</span>
+                {experienceSpace === 'Terrasse' && (
+                  <span className="mt-2 inline-flex items-center text-amber-600 text-xs font-bold">
+                    <Check className="w-3 h-3 mr-1" /> Sélectionné
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
           {/* Options de commande */}
           <div>
             <label className="block text-sm font-bold text-gray-900 mb-4">Comment souhaitez-vous recevoir votre commande ?</label>

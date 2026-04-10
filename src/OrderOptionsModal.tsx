@@ -283,6 +283,7 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
                   className="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all duration-300 bg-white shadow-sm"
                 >
                   <option value="">Sélectionner un créneau</option>
+                  <option value="0">Dès que possible (24h/24)</option>
                   <option value="1">12h00 - 12h30</option>
                   <option value="2">12h30 - 13h00</option>
                   <option value="3">13h00 - 13h30</option>
@@ -348,6 +349,7 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
                 className="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-300 bg-white shadow-sm"
               >
                 <option value="">Sélectionner l'heure de retrait</option>
+                <option value="0">Dès que possible (24h/24)</option>
                 <option value="15">Dans 15 minutes</option>
                 <option value="20">Dans 20 minutes</option>
                 <option value="25">Dans 25 minutes</option>

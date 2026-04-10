@@ -1707,6 +1707,14 @@ export default function App() {
                 </a>
               </div>
             </div>
+            <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5 max-w-md w-full sm:w-auto">
+              <Clock className="w-8 h-8 text-amber-600 flex-shrink-0" />
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Horaires</p>
+                <p className="font-bold dark:text-white text-sm">Ouvert 24h/24</p>
+                <p className="text-xs text-amber-600 font-bold mt-1">7j/7 — Service Non-Stop</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1714,23 +1722,24 @@ export default function App() {
       {/* Footer avec références */}
       <footer className="bg-stone-900 text-white py-8 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-center md:text-left">
-            <p className="text-xs font-bold uppercase tracking-widest text-amber-500">Resto Abdoul</p>
-            
+          <div className="text-center md:text-left flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-500">Resto Abdoul</p>
+            </div>
+            <button 
+              onClick={() => setIsAdminOpen(true)}
+              className="text-stone-500 dark:text-stone-600 text-[10px] uppercase font-black tracking-widest hover:text-amber-600 transition-colors border border-stone-800 dark:border-white/10 px-3 py-1 rounded-full"
+            >
+              Admin
+            </button>
           </div>
           <div className="text-center">
             <p className="text-[10px] text-stone-500 uppercase tracking-widest">Développé par Sawadogo Stephane & Dabire Windson</p>
           </div>
-          <div className="max-w-7xl mx-auto px-6 text-center space-y-8">
-            <p className="text-stone-500 dark:text-stone-400 text-sm">
+          <div className="max-w-7xl mx-auto px-6 text-center">
+            <p className="text-stone-500 dark:text-stone-400 text-xs">
               Resto Abdoul. Tous droits réservés.
             </p>
-            <button 
-              onClick={() => setIsAdminOpen(true)}
-              className="text-stone-400 dark:text-stone-600 text-xs hover:text-amber-600 transition-colors"
-            >
-              Admin
-            </button>
           </div>
         </div>
       </footer>

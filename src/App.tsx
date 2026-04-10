@@ -1681,15 +1681,7 @@ export default function App() {
               <ShoppingBag className="w-8 h-8 text-amber-600 flex-shrink-0" />
               <div className="text-left">
                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Fast Food</p>
-                <p className="font-bold dark:text-white text-sm">À côté de la DR Sport et Loisir</p>
-                <a
-                  href={FAST_FOOD_MAPS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-amber-600 dark:text-amber-500 hover:underline text-sm inline-block mt-1"
-                >
-                  Google Maps
-                </a>
+                <p className="font-bold dark:text-white text-sm italic">Localisation bientôt disponible</p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5 max-w-md">
@@ -1707,14 +1699,7 @@ export default function App() {
                 </a>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-4 p-8 bg-stone-50 dark:bg-stone-950 rounded-3xl border border-stone-100 dark:border-white/5 max-w-md w-full sm:w-auto">
-              <Clock className="w-8 h-8 text-amber-600 flex-shrink-0" />
-              <div className="text-left">
-                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Horaires</p>
-                <p className="font-bold dark:text-white text-sm">16h00 - 05h00 du matin</p>
-                <p className="text-xs text-amber-600 font-bold mt-1">7j/7 — Service Soir & Nuit</p>
-              </div>
-            </div>
+
           </div>
         </div>
       </section>

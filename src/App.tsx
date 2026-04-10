@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Phone,
   MapPin,
@@ -223,6 +223,31 @@ function loadMenuFromStorage(): MenuItem[] {
   return INITIAL_MENU_DATA;
 }
 
+/** Supabase jsonb / Firestore peuvent renvoyer un tableau ou une chaîne JSON. */
+function coerceRemoteMenuItems(raw: unknown): MenuItem[] | null {
+  if (raw == null) return null;
+  if (Array.isArray(raw) && raw.length > 0) return raw as MenuItem[];
+  if (typeof raw === 'string') {
+    try {
+      const p = JSON.parse(raw) as unknown;
+      if (Array.isArray(p) && p.length > 0) return p as MenuItem[];
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+/** Anciennes données sans `category` : les filtres Fast Food / Terrasse renvoyaient 0 élément. */
+function normalizeMenuCategories(items: MenuItem[]): MenuItem[] {
+  return items.map((item) => {
+    if (item.category === 'Fast Food' || item.category === 'Terrasse') return item;
+    const base = INITIAL_MENU_DATA.find((d) => d.id === item.id);
+    if (base) return { ...item, category: base.category };
+    return { ...item, category: 'Fast Food' };
+  });
+}
+
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
@@ -237,11 +262,13 @@ export default function App() {
   const menuPushTargetsRef = useRef({ supabase: false, firebase: false });
 
   const applyRemoteMenuItems = (remoteItems: unknown) => {
-    if (!Array.isArray(remoteItems) || remoteItems.length === 0) return;
+    const coerced = coerceRemoteMenuItems(remoteItems);
+    if (!coerced) return;
+    const normalized = normalizeMenuCategories(coerced);
     setMenu((prev) => {
       const prevJson = JSON.stringify(prev);
-      const remoteJson = JSON.stringify(remoteItems);
-      return prevJson === remoteJson ? prev : (remoteItems as MenuItem[]);
+      const remoteJson = JSON.stringify(normalized);
+      return prevJson === remoteJson ? prev : normalized;
     });
   };
 
@@ -273,8 +300,9 @@ export default function App() {
               .eq('id', RESTAURANT_MENU_ROW_ID)
               .maybeSingle();
 
-            if (!cancelled && !error && data?.items && Array.isArray(data.items) && data.items.length > 0) {
-              sbItems = data.items as MenuItem[];
+            if (!cancelled && !error && data) {
+              const coerced = coerceRemoteMenuItems(data.items);
+              if (coerced) sbItems = normalizeMenuCategories(coerced);
             }
 
             const channel = supabase
@@ -318,10 +346,8 @@ export default function App() {
           const snap = await getDoc(menuDocRef);
 
           if (!cancelled && snap.exists()) {
-            const remoteItems = snap.data()?.items;
-            if (Array.isArray(remoteItems) && remoteItems.length > 0) {
-              fbItems = remoteItems as MenuItem[];
-            }
+            const coerced = coerceRemoteMenuItems(snap.data()?.items);
+            if (coerced) fbItems = normalizeMenuCategories(coerced);
           }
 
           const unsub = onSnapshot(menuDocRef, (snapshot) => {
@@ -358,13 +384,22 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(menu));
+    if (menu.length > 0) {
+      localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(menu));
+    }
   }, [menu]);
+
+  useEffect(() => {
+    if (menu.length === 0) {
+      setMenu(INITIAL_MENU_DATA);
+    }
+  }, [menu.length]);
 
   useEffect(() => {
     if (!isMenuRemoteReady || !isMenuRemoteEnabled) return;
     const { supabase: pushSb, firebase: pushFb } = menuPushTargetsRef.current;
     if (!pushSb && !pushFb) return;
+    if (menu.length === 0) return;
 
     const pushMenuToRemote = async () => {
       try {
@@ -555,8 +590,13 @@ export default function App() {
     ).filter(item => item.quantity > 0));
   };
 
-  const menuFastFood = menu.filter((m) => m.category === 'Fast Food');
-  const menuTerrasse = menu.filter((m) => m.category === 'Terrasse');
+  const menuForDisplay = useMemo(() => {
+    const src = menu.length > 0 ? menu : INITIAL_MENU_DATA;
+    return normalizeMenuCategories(src);
+  }, [menu]);
+
+  const menuFastFood = menuForDisplay.filter((m) => m.category === 'Fast Food');
+  const menuTerrasse = menuForDisplay.filter((m) => m.category === 'Terrasse');
 
   const renderMenuCards = (items: MenuItem[]) =>
     items.map((item) => (

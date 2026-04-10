@@ -1711,8 +1711,8 @@ export default function App() {
               <Clock className="w-8 h-8 text-amber-600 flex-shrink-0" />
               <div className="text-left">
                 <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Horaires</p>
-                <p className="font-bold dark:text-white text-sm">Ouvert 24h/24</p>
-                <p className="text-xs text-amber-600 font-bold mt-1">7j/7 — Service Non-Stop</p>
+                <p className="font-bold dark:text-white text-sm">16h00 - 05h00 du matin</p>
+                <p className="text-xs text-amber-600 font-bold mt-1">7j/7 — Service Soir & Nuit</p>
               </div>
             </div>
           </div>

@@ -283,13 +283,13 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
                   className="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all duration-300 bg-white shadow-sm"
                 >
                   <option value="">Sélectionner un créneau</option>
-                  <option value="0">Dès que possible (24h/24)</option>
-                  <option value="1">12h00 - 12h30</option>
-                  <option value="2">12h30 - 13h00</option>
-                  <option value="3">13h00 - 13h30</option>
-                  <option value="4">19h00 - 19h30</option>
-                  <option value="5">19h30 - 20h00</option>
-                  <option value="6">20h00 - 20h30</option>
+                  <option value="maintenant">Dès que possible (Maintenant)</option>
+                  <option value="16h-18h">16h00 - 18h00</option>
+                  <option value="18h-20h">18h00 - 20h00</option>
+                  <option value="20h-22h">20h00 - 22h00</option>
+                  <option value="22h-00h">22h00 - 00h00</option>
+                  <option value="00h-02h">00h00 - 02h00</option>
+                  <option value="02h-05h">02h00 - 05h00</option>
                 </select>
               </div>
 
@@ -349,11 +349,10 @@ export const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
                 className="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-300 bg-white shadow-sm"
               >
                 <option value="">Sélectionner l'heure de retrait</option>
-                <option value="0">Dès que possible (24h/24)</option>
-                <option value="15">Dans 15 minutes</option>
-                <option value="20">Dans 20 minutes</option>
-                <option value="25">Dans 25 minutes</option>
-                <option value="30">Dans 30 minutes</option>
+                <option value="maintenant">Dès que possible (Maintenant)</option>
+                <option value="15min">Dans 15 minutes</option>
+                <option value="30min">Dans 30 minutes</option>
+                <option value="1h">Dans 1 heure</option>
               </select>
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
                 <p className="text-xs text-green-800 font-medium flex items-center gap-2">
